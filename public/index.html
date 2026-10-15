@@ -78,6 +78,10 @@
             color: #475569;
             background-color: #f8fafc !important;
             border-bottom: 2px solid #e2e8f0;
+            font-size: 13px;
+        }
+        .table td {
+            font-size: 13px;
         }
         #masterListCard .table-responsive {
             max-height: 480px !important;
@@ -279,7 +283,7 @@
                                 </div>
                             </div>
                             <div class="table-responsive flex-grow-1" style="max-height: 220px; overflow-y: auto;">
-                                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 14px;">
+                                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                                     <thead class="table-light sticky-top">
                                         <tr style="font-size: 13px;">
                                             <th>ទំនិញ (Item)</th>
@@ -450,7 +454,7 @@
                         <i class="bi bi-archive-fill"></i> បញ្ជីស្តុកទំនិញក្នុងឃ្លាំង (Master & Stock List)
                     </h5>
                     <div class="table-responsive" style="max-height: 230px; overflow-y: auto;">
-                        <table class="table table-sm table-hover align-middle mb-0">
+                        <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                             <thead class="table-light sticky-top">
                                 <tr>
                                     <th>Category</th>
@@ -470,11 +474,12 @@
             </div>
             
             <div class="col-lg-4" id="colAdminUserCard">
-                <div id="adminUserCard" class="card p-4 shadow-sm bg-white border-top border-primary border-4 h-100 mb-4">
+                <!-- រួមបញ្ចូលប្រអប់ បង្កើតគណនីបុគ្គលិក និងបញ្ជីគ្រប់គ្រងគណនីក្នុង Card តែមួយ -->
+                <div id="adminUserCard" class="card p-4 shadow-sm bg-white border-top border-primary border-4 h-100">
                     <h5 class="mb-3 text-primary fw-bold fs-6 d-flex align-items-center gap-2">
                         <i class="bi bi-person-plus-fill"></i> បង្កើតគណនីបុគ្គលិក (Staff Accounts)
                     </h5>
-                    <form id="createUserForm">
+                    <form id="createUserForm" class="mb-4">
                         <div class="mb-2">
                             <label class="form-label small text-muted fw-bold">Username (សម្រាប់ចូល)</label>
                             <input type="text" class="form-control form-control-sm" id="newUserUsername" placeholder="ឧ. sokha" required>
@@ -493,14 +498,14 @@
                         </div>
                         <button type="submit" class="btn btn-outline-primary btn-sm w-100 shadow-sm py-2">បង្កើតគណនីថ្មី (Create User)</button>
                     </form>
-                </div>
 
-                <!-- បញ្ជីគ្រប់គ្រងគណនីបុគ្គលិក (User Management & Active/Inactive Toggle) -->
-                <div class="card p-4 shadow-sm bg-white border-top border-secondary border-4">
+                    <!-- បន្ទាត់ខណ្ឌែកណ្តាល -->
+                    <hr class="text-muted my-3">
+
                     <h5 class="mb-3 text-secondary fw-bold fs-6 d-flex align-items-center gap-2">
                         <i class="bi bi-people-fill"></i> គ្រប់គ្រងគណនីបុគ្គលិក (Users List)
                     </h5>
-                    <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
                         <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                             <thead class="table-light sticky-top">
                                 <tr>
