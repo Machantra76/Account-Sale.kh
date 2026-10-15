@@ -8,9 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts: Kantumruy Pro & Battambang -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- html2pdf for Save PDF -->
+    <!-- html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -20,66 +20,18 @@
             --success-color: #10b981;
             --danger-color: #ef4444;
         }
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Kantumruy Pro', 'Battambang', sans-serif; 
-            color: #1e293b;
-            letter-spacing: -0.01em;
-        }
-        h1, h2, h3, h4, h5, h6, .card-title, label, th, .btn { 
-            font-family: 'Kantumruy Pro', 'Battambang', sans-serif; 
-        }
-        .card { 
-            border-radius: 18px; 
-            border: 1px solid #e2e8f0; 
-            box-shadow: var(--card-shadow);
-            background: #ffffff;
-            transition: all 0.2s ease;
-        }
-        .card-summary { 
-            border-radius: 18px; 
-            color: white; 
-            border: none; 
-        }
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 0.6rem 1rem;
-            border-color: #cbd5e1;
-            font-size: 14px;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-            border-color: var(--primary-color);
-        }
-        .btn {
-            border-radius: 12px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-        /* ទប់ស្កាត់មិនឱ្យចេញផ្ទាំងត្រួតគ្នាពេលទើបបើក */
-        #appContainer, #loginContainer {
-            display: none;
-        }
-        .pos-item-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .pos-item-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1);
-            border-color: var(--success-color) !important;
-        }
-        .table th {
-            font-weight: 600;
-            color: #475569;
-            background-color: #f8fafc !important;
-            border-bottom: 2px solid #e2e8f0;
-        }
+        body { background-color: var(--bg-body); font-family: 'Kantumruy Pro', 'Battambang', sans-serif; color: #1e293b; letter-spacing: -0.01em; }
+        h1, h2, h3, h4, h5, h6, .card-title, label, th, .btn { font-family: 'Kantumruy Pro', 'Battambang', sans-serif; }
+        .card { border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: var(--card-shadow); background: #ffffff; transition: all 0.2s ease; }
+        .card-summary { border-radius: 18px; color: white; border: none; }
+        .form-control, .form-select { border-radius: 12px; padding: 0.6rem 1rem; border-color: #cbd5e1; font-size: 14px; }
+        .form-control:focus, .form-select:focus { box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); border-color: var(--primary-color); }
+        .btn { border-radius: 12px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-1px); }
+        #appContainer, #loginContainer { display: none; }
+        .pos-item-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .pos-item-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1); border-color: var(--success-color) !important; }
+        .table th { font-weight: 600; color: #475569; background-color: #f8fafc !important; border-bottom: 2px solid #e2e8f0; }
     </style>
 </head>
 <body class="py-4">
@@ -114,9 +66,9 @@
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER (DASHBOARD MENU) -->
+    <!-- MAIN APP CONTAINER -->
     <div id="appContainer" class="container-fluid px-4" style="max-width: 1450px;">
-        <!-- Top Navigation Header -->
+        <!-- Top Navigation Header & Menu -->
         <div class="d-flex align-items-center justify-content-between mb-4 bg-white p-3 px-4 rounded-4 shadow-sm border flex-wrap gap-3">
             <div class="d-flex align-items-center gap-2">
                 <div class="bg-primary text-white p-2 rounded-3 fs-5 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
@@ -128,22 +80,12 @@
                 </div>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-2">
-                <!-- Dashboard Menu Navigation Buttons -->
-                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('pos')">
-                    <i class="bi bi-cart-check me-1"></i> ទំព័រលក់ (POS)
-                </button>
-                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('inventory')">
-                    <i class="bi bi-archive me-1"></i> ស្តុកទំនិញ
-                </button>
-                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('sales_history')">
-                    <i class="bi bi-cash-coin me-1"></i> ប្រវត្តិលក់
-                </button>
-                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('restock')">
-                    <i class="bi bi-box-arrow-in-down me-1"></i> ទិញស្តុក
-                </button>
-                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('staff')">
-                    <i class="bi bi-person-plus me-1"></i> បុគ្គលិក
-                </button>
+                <!-- Main Menu Switcher Buttons -->
+                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('pos')">🛒 POS (លក់)</button>
+                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('inventory')">📦 ស្តុកទំនិញ</button>
+                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('sales_history')">💰 ប្រវត្តិលក់</button>
+                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('restock')">📥 ទិញស្តុក</button>
+                <button class="btn btn-outline-dark btn-sm px-3 shadow-sm fw-semibold" onclick="loadView('staff')">👤 បុគ្គលិក</button>
 
                 <div class="vr mx-1"></div>
 
@@ -195,17 +137,17 @@
             </div>
         </div>
 
-        <!-- DYNAMIC CONTENT AREA (កន្លែង Load ឯកសារ HTML រងពី views/ មកបង្ហាញ) -->
+        <!-- DYNAMIC CONTENT AREA (កន្លែង Load កូដ HTML រងនីមួយៗមកបង្ហាញ) -->
         <div id="dynamicContentArea"></div>
     </div>
 
-    <!-- Modals ទាំងអស់ (រក្សាទុកក្នុង index.html ដើមដដែល) -->
-    <!-- (Activity Log Modal, Report Modal, Debt Report Modal, Payable Modal, Invoice History Modal, etc.) -->
+    <!-- Modals ទាំងអស់រក្សាទុកទីនេះ (Activity Log, Reports, Debt, Edit Modals...) -->
+    <!-- (អាចរក្សាកូដ Modal ដើមរបស់អ្នកដាក់ទីនេះបានធម្មតា) -->
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript សម្រាប់ Dashboard និង View Switcher -->
+    <!-- JavaScript សម្រាប់ Switch Views និងដំណើរការប្រព័ន្ធ -->
     <script>
         const API_BASE = window.location.origin;
         const API_URL = `${API_BASE}/api/accounting`;
@@ -214,28 +156,8 @@
         let allTransactionsList = [];
         let allInvoicesList = [];
         let currentCart = [];
-        
-        // Modal references
-        let editMasterModal, editCartModal, reportModal, invoiceHistoryModal;
-        let editInvoiceModal, editTransactionModal, activityLogModal, debtReportModal, payableReportModal, payDebtModal;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // Initialize Modals
-            editMasterModal = new bootstrap.Modal(document.getElementById('editMasterModal'));
-            editCartModal = new bootstrap.Modal(document.getElementById('editCartModal'));
-            reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
-            invoiceHistoryModal = new bootstrap.Modal(document.getElementById('invoiceHistoryModal'));
-            editInvoiceModal = new bootstrap.Modal(document.getElementById('editInvoiceModal'));
-            editTransactionModal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
-            activityLogModal = new bootstrap.Modal(document.getElementById('activityLogModal'));
-            debtReportModal = new bootstrap.Modal(document.getElementById('debtReportModal'));
-            payableReportModal = new bootstrap.Modal(document.getElementById('payableReportModal'));
-            payDebtModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
-            
-            checkLoginState();
-        });
-
-        // មុខងារប្តូរ View តាម Menu ដោយមិនបាត់បង់ទម្រង់ដើម
+        // មុខងារប្តូរទំព័រ Views តាម Menu ដោយមិន Reload ពេញមួយទំព័រ
         async function loadView(viewName) {
             try {
                 let res = await fetch(`./views/${viewName}.html`);
@@ -243,7 +165,7 @@
                     let html = await res.text();
                     document.getElementById('dynamicContentArea').innerHTML = html;
                     
-                    // ហៅមុខងារទិន្នន័យឡើងវិញតាមទំព័រនីមួយៗ
+                    // ហៅទិន្នន័យទាក់ទងនឹងទំព័រនោះឱ្យដំណើរការឡើងវិញ
                     if (viewName === 'pos') { renderPosImageGrid(); renderCartTable(); }
                     if (viewName === 'inventory') { renderMasterTable(); }
                     if (viewName === 'sales_history') { fetchTransactions(); }
@@ -256,7 +178,10 @@
             }
         }
 
-        // មុខងារពិនិត្យស្ថានភាព Login
+        document.addEventListener("DOMContentLoaded", () => {
+            checkLoginState();
+        });
+
         function checkLoginState() {
             let loggedUserStr = sessionStorage.getItem("loggedUserObj");
             if (loggedUserStr) {
@@ -265,8 +190,7 @@
                 document.getElementById('appContainer').style.display = 'block';
                 document.getElementById('welcomeUser').innerText = `👤 ${userObj.username} (${(userObj.role || '').toUpperCase()})`;
 
-                // Load ទំព័រ POS ចូលមកមុនគេជាំនាក់ដំបូង
-                loadView('pos');
+                loadView('pos'); // ឱ្យវាចេញទំព័រ POS មុនគេពេលចូល
                 loadAppData();
             } else {
                 document.getElementById('loginContainer').style.display = 'block';
