@@ -306,6 +306,27 @@ app.delete('/api/accounting/master-items/:id', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+// បន្ថែម Endpoint សម្រាប់ប្តូរ Status របស់ User (Active / Inactive)
+app.put('/api/users/:id/status', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { status } = req.body; // 'active' ឬ 'inactive'
+
+        // បើសີលជា Database ប្រើ PostgreSQL (Neon DB)
+        const query = 'UPDATE users SET status = $1 WHERE id = $2 RETURNING *';
+        const values = [status, userId];
+        const result = await pool.query(query, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'រកមិនឃើញ User នេះទេ' });
+        }
+
+        res.json({ success: true, user: result.rows[0] });
+    } catch (err) {
+        console.error("Error updating user status:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // TRANSACTIONS API
 app.get('/api/accounting/transactions', async (req, res) => {
