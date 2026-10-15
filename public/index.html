@@ -470,7 +470,7 @@
             </div>
             
             <div class="col-lg-4" id="colAdminUserCard">
-                <div id="adminUserCard" class="card p-4 shadow-sm bg-white border-top border-primary border-4 h-100">
+                <div id="adminUserCard" class="card p-4 shadow-sm bg-white border-top border-primary border-4 h-100 mb-4">
                     <h5 class="mb-3 text-primary fw-bold fs-6 d-flex align-items-center gap-2">
                         <i class="bi bi-person-plus-fill"></i> បង្កើតគណនីបុគ្គលិក (Staff Accounts)
                     </h5>
@@ -493,6 +493,26 @@
                         </div>
                         <button type="submit" class="btn btn-outline-primary btn-sm w-100 shadow-sm py-2">បង្កើតគណនីថ្មី (Create User)</button>
                     </form>
+                </div>
+
+                <!-- បញ្ជីគ្រប់គ្រងគណនីបុគ្គលិក (User Management & Active/Inactive Toggle) -->
+                <div class="card p-4 shadow-sm bg-white border-top border-secondary border-4">
+                    <h5 class="mb-3 text-secondary fw-bold fs-6 d-flex align-items-center gap-2">
+                        <i class="bi bi-people-fill"></i> គ្រប់គ្រងគណនីបុគ្គលិក (Users List)
+                    </h5>
+                    <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th class="text-center">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersListTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1011,6 +1031,7 @@
         let masterItemsList = [];
         let allTransactionsList = [];
         let allInvoicesList = [];
+        let allUsersList = [];
         let currentCart = [];
         let editMasterModal;
         let editCartModal;
@@ -1372,7 +1393,7 @@
                     colAdminUserCard.style.display = 'none';
 
                     if(adminPayableBtn) adminPayableBtn.style.display = 'none';
-                    if(adminReceivableBtn) adminReceivableBtn.style.display = 'inline-block'; // Staff ឃើញ Receivable
+                    if(adminReceivableBtn) adminReceivableBtn.style.display = 'inline-block';
 
                     document.getElementById('adminReportBtn').style.display = 'none';
                     document.getElementById('adminActivityLogBtn').style.display = 'none';
@@ -1403,7 +1424,6 @@
 
                     colAdminUserCard.style.display = 'none';
 
-                    // Stock Keeper មិនឱ្យមានទាំង Payable និង Receivable
                     if(adminPayableBtn) adminPayableBtn.style.display = 'none';
                     if(adminReceivableBtn) adminReceivableBtn.style.display = 'none';
 
@@ -1468,6 +1488,10 @@
                 });
                 let data = await res.json();
                 if (res.ok) {
+                    if (data.user.status === 'inactive') {
+                        alert("❌ គណនីនេះត្រូវបានផ្អាកដំណើរការ (Inactive) រួចហើយ មិនអាចចូលប្រើប្រាស់បានទេ!");
+                        return;
+                    }
                     sessionStorage.setItem("loggedUserObj", JSON.stringify(data.user));
                     logActivity(data.user, "ចូលប្រព័ន្ធ (Login)");
                     checkLoginState();
@@ -1500,7 +1524,7 @@
                 let res = await fetch(`${API_BASE}/api/users`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, role })
+                    body: JSON.stringify({ username, password, role, status: 'active' })
                 });
                 let data = await res.json();
                 if (res.ok) {
@@ -1511,6 +1535,7 @@
 
                     alert(`✅ បានបង្កើតគណនីសម្រាប់ "${username}" (${role}) ដោយជោគជ័យ!`);
                     document.getElementById('createUserForm').reset();
+                    fetchUsersList();
                 } else {
                     alert(`❌ ${data.error || 'កំហុសក្នុងការបង្កើត User'}`);
                 }
@@ -1519,6 +1544,100 @@
                 alert("❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!");
             }
         });
+
+        async function fetchUsersList() {
+            let tbody = document.getElementById('usersListTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            try {
+                let res = await fetch(`${API_BASE}/api/users`);
+                let result = await res.json();
+                
+                if (Array.isArray(result)) {
+                    allUsersList = result;
+                } else if (result.success && Array.isArray(result.data)) {
+                    allUsersList = result.data;
+                } else {
+                    allUsersList = [];
+                }
+
+                if (allUsersList.length > 0) {
+                    allUsersList.forEach(u => {
+                        let statusBadge = u.status === 'inactive' ? 
+                            `<span class="badge bg-danger">Inactive</span>` : 
+                            `<span class="badge bg-success">Active</span>`;
+                        
+                        let toggleBtnText = u.status === 'inactive' ? 'Activate' : 'Deactivate';
+                        let toggleBtnClass = u.status === 'inactive' ? 'btn-outline-success' : 'btn-outline-warning text-dark';
+
+                        let tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><code>${u.username}</code></td>
+                            <td><span class="badge bg-secondary">${u.role || 'staff'}</span></td>
+                            <td>${statusBadge}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm ${toggleBtnClass} py-0 px-1 me-1" onclick="toggleUserStatus('${u.id || u.username}', '${u.status || 'active'}')" style="font-size: 11px;">${toggleBtnText}</button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="deleteUserAccount('${u.id || u.username}', '${u.username}')" style="font-size: 11px;">លុប</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-2">មិនមានទិន្នន័យគណនីបុគ្គលិកទេ</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error fetching users list:", err);
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-2">មិនអាចទាញទិន្នន័យ User បានទេ</td></tr>`;
+            }
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            let newStatus = currentStatus === 'inactive' ? 'active' : 'inactive';
+            let actionName = newStatus === 'inactive' ? 'បិទដំណើរការ (Inactive)' : 'បើកដំណើរការ (Active)';
+
+            if (!confirm(`តើអ្នកពិតជាចង់ប្តូរស្ថានភាពគណនីនេះទៅជា "${newStatus.toUpperCase()}" មែនទេ?`)) return;
+
+            try {
+                let res = await fetch(`${API_BASE}/api/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (res.ok) {
+                    alert(`✅ បានប្តូរស្ថានភាពគណនីជោគជ័យ!`);
+                    fetchUsersList();
+                } else {
+                    let data = await res.json();
+                    alert(`❌ ${data.error || 'កំហុសក្នុងការកែប្រែស្ថានភាពគណនី'}`);
+                }
+            } catch (err) {
+                console.error("Error toggling user status:", err);
+                alert("❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!");
+            }
+        }
+
+        async function deleteUserAccount(userId, username) {
+            if (!confirm(`តើអ្នកពិតជាចង់លុបគណនី "${username}" ចេញពីប្រព័ន្ធទាំងស្រុងមែនទេ?`)) return;
+
+            try {
+                let res = await fetch(`${API_BASE}/api/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    alert(`✅ បានលុបគណនី "${username}" ដោយជោគជ័យ!`);
+                    fetchUsersList();
+                } else {
+                    let data = await res.json();
+                    alert(`❌ ${data.error || 'កំហុសក្នុងការលុបគណនី'}`);
+                }
+            } catch (err) {
+                console.error("Error deleting user:", err);
+                alert("❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!");
+            }
+        }
 
         document.getElementById('masterForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1682,6 +1801,7 @@
             await fetchInvoicesFromServer();
             await fetchMasterItems();
             await fetchTransactions();
+            await fetchUsersList();
             fetchSummary();
         }
 
