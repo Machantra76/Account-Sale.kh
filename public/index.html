@@ -192,6 +192,10 @@
                     </h5>
                     <form id="masterForm">
                         <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">លេខកូដបាកូដ (Barcode)</label>
+                            <input type="text" class="form-control form-control-sm" id="masterBarcode" placeholder="ស្កែន ឬវាយបញ្ចូល Barcode...">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label small text-muted fw-bold">Category (ក្រុមទំនិញ)</label>
                             <input type="text" class="form-control form-control-sm" id="masterCategory" placeholder="ឧ. ភេសជ្ជៈ, ស្រាបៀរ..." required>
                         </div>
@@ -254,12 +258,19 @@
                                     <i class="bi bi-grid-3x3-gap-fill"></i> ជ្រើសរើសទំនិញ (POS Catalog)
                                 </h6>
                             </div>
+                            <!-- ប្រអប់ស្កែនបាកូដ -->
+                            <div class="mb-2">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-success text-white"><i class="bi bi-upc-scan"></i></span>
+                                    <input type="text" class="form-control form-control-sm fw-bold border-success" id="barcodeScannerInput" placeholder="ស្កែនបាកូដទីនេះ..." autofocus onkeypress="handleBarcodeScan(event)">
+                                </div>
+                            </div>
                             <div class="mb-2">
                                 <select class="form-select form-select-sm" id="posSelectCategory" onchange="onPosCategoryChanged()">
                                     <option value="">-- គ្រប់ Category ទាំងអស់ --</option>
                                 </select>
                             </div>
-                            <div id="posImageGrid" class="row g-2" style="max-height: 420px; overflow-y: auto;">
+                            <div id="posImageGrid" class="row g-2" style="max-height: 370px; overflow-y: auto;">
                                 <p class="text-muted text-center py-3">សូមជ្រើសរើស Category ដើម្បីបង្ហាញរូបភាពទំនិញ</p>
                             </div>
                         </div>
@@ -319,6 +330,7 @@
                                 <table class="table table-sm table-hover align-middle mb-0">
                                     <thead class="table-light sticky-top">
                                         <tr>
+                                            <th>Barcode</th>
                                             <th>Category</th>
                                             <th>ឈ្មោះទំនិញ (Item)</th>
                                             <th>ឯកតា (Unit)</th>
@@ -457,6 +469,7 @@
                         <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                             <thead class="table-light sticky-top">
                                 <tr>
+                                    <th>Barcode</th>
                                     <th>Category</th>
                                     <th>ឈ្មោះទំនិញ (Item)</th>
                                     <th>ឯកតា (Unit)</th>
@@ -474,7 +487,6 @@
             </div>
             
             <div class="col-lg-4" id="colAdminUserCard">
-                <!-- រួមបញ្ចូលប្រអប់ បង្កើតគណនីបុគ្គលិក និងបញ្ជីគ្រប់គ្រងគណនីក្នុង Card តែមួយ -->
                 <div id="adminUserCard" class="card p-4 shadow-sm bg-white border-top border-primary border-4 h-100">
                     <h5 class="mb-3 text-primary fw-bold fs-6 d-flex align-items-center gap-2">
                         <i class="bi bi-person-plus-fill"></i> បង្កើតគណនីបុគ្គលិក (Staff Accounts)
@@ -499,7 +511,6 @@
                         <button type="submit" class="btn btn-outline-primary btn-sm w-100 shadow-sm py-2">បង្កើតគណនីថ្មី (Create User)</button>
                     </form>
 
-                    <!-- បន្ទាត់ខណ្ឌែកណ្តាល -->
                     <hr class="text-muted my-3">
 
                     <h5 class="mb-3 text-secondary fw-bold fs-6 d-flex align-items-center gap-2">
@@ -884,6 +895,10 @@
                 <div class="modal-body p-4">
                     <form id="editMasterForm">
                         <input type="hidden" id="editMasterId">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">លេខកូដបាកូដ (Barcode)</label>
+                            <input type="text" class="form-control" id="editMasterBarcode" placeholder="Barcode...">
+                        </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted fw-bold">Category</label>
                             <input type="text" class="form-control" id="editMasterCategory" required>
@@ -1647,6 +1662,7 @@
         document.getElementById('masterForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            let barcode = document.getElementById('masterBarcode').value.trim();
             let category = document.getElementById('masterCategory').value.trim();
             let itemName = document.getElementById('masterItemName').value.trim();
             let unit = document.getElementById('masterUnit').value;
@@ -1669,6 +1685,7 @@
             }
 
             let data = {
+                barcode: barcode,
                 category: category,
                 item_name: itemName,
                 image_url: imageUrl,
@@ -1705,8 +1722,9 @@
             }
         });
 
-        function openEditMaster(id, category, itemName, unit, stock, cost, retail, wholesale) {
+        function openEditMaster(id, barcode, category, itemName, unit, stock, cost, retail, wholesale) {
             document.getElementById('editMasterId').value = id;
+            document.getElementById('editMasterBarcode').value = barcode || '';
             document.getElementById('editMasterCategory').value = category;
             document.getElementById('editMasterItemName').value = itemName;
             document.getElementById('editMasterUnit').value = unit;
@@ -1720,6 +1738,7 @@
         document.getElementById('editMasterForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             let id = document.getElementById('editMasterId').value;
+            let barcode = document.getElementById('editMasterBarcode').value.trim();
             let category = document.getElementById('editMasterCategory').value.trim();
             let itemName = document.getElementById('editMasterItemName').value.trim();
             let unit = document.getElementById('editMasterUnit').value;
@@ -1744,6 +1763,7 @@
             }
 
             let data = {
+                barcode: barcode,
                 category: category,
                 item_name: itemName,
                 image_url: imageUrl,
@@ -1897,6 +1917,25 @@
 
         function onPosCategoryChanged() {
             renderPosImageGrid();
+        }
+
+        // មុខងារស្កែនបាកូដបញ្ចូល Cart ដោយស្វ័យប្រវត្តិ
+        function handleBarcodeScan(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                let inputField = document.getElementById('barcodeScannerInput');
+                let code = inputField.value.trim();
+                if (!code) return;
+
+                let found = masterItemsList.find(i => i.barcode && i.barcode.trim().toLowerCase() === code.toLowerCase());
+                if (found) {
+                    addGridItemToCart(found.id);
+                    inputField.value = ''; // សម្អាតប្រអប់ស្កែនវិញ
+                } else {
+                    alert(`⚠ រកមិនឃើញទំនិញដែលមាន Barcode "${code}" ទេ!`);
+                    inputField.select();
+                }
+            }
         }
 
         function renderPosImageGrid() {
@@ -2692,6 +2731,7 @@
                 if (!master) return;
 
                 let data = {
+                    barcode: master.barcode || '',
                     category: master.category,
                     item_name: master.item_name,
                     image_url: master.image_url || '',
@@ -2763,14 +2803,16 @@
                 if (masterItemsList.length > 0) {
                     masterItemsList.forEach(m => {
                         let unitLabel = m.unit ? m.unit : 'ដុំ';
+                        let barcodeVal = m.barcode ? m.barcode : '-';
                         let tr = document.createElement('tr');
                         let actionTd = isStaff ? '' : `
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1" onclick="openEditMaster('${m.id}', '${m.category.replace(/'/g, "\\'")}', '${m.item_name.replace(/'/g, "\\'")}', '${m.unit || 'ដុំ'}', ${m.stock_quantity || 0}, ${m.cost_price || 0}, ${m.retail_price || 0}, ${m.wholesale_price || 0})">កែ</button>
+                                <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1" onclick="openEditMaster('${m.id}', '${(m.barcode || '').replace(/'/g, "\\'")}', '${m.category.replace(/'/g, "\\'")}', '${m.item_name.replace(/'/g, "\\'")}', '${m.unit || 'ដុំ'}', ${m.stock_quantity || 0}, ${m.cost_price || 0}, ${m.retail_price || 0}, ${m.wholesale_price || 0})">កែ</button>
                                 <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteMasterItem('${m.id}', '${m.item_name.replace(/'/g, "\\'")}')">លុប</button>
                             </td>`;
                         
                         tr.innerHTML = `
+                            <td><code>${barcodeVal}</code></td>
                             <td>${m.category}</td>
                             <td class="fw-bold">${m.item_name}</td>
                             <td><span class="badge bg-secondary">${unitLabel}</span></td>
@@ -2783,7 +2825,7 @@
                         tbody.appendChild(tr);
                     });
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">មិនទាន់មានទំនិញក្នុងស្តុកទេ</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-3">មិនទាន់មានទំនិញក្នុងស្តុកទេ</td></tr>`;
                 }
             });
         }
