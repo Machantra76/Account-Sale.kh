@@ -56,6 +56,7 @@ const initTables = async () => {
             username VARCHAR(100) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             role VARCHAR(50) DEFAULT 'staff',
+            status VARCHAR(20) DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -119,10 +120,11 @@ const initTables = async () => {
         await pool.query(`ALTER TABLE master_items ADD COLUMN IF NOT EXISTS wholesale_price DECIMAL(10, 2) DEFAULT 0;`);
         await pool.query(`ALTER TABLE transactions ADD COLUMN IF NOT EXISTS item_id INT;`);
         await pool.query(`ALTER TABLE debts ADD COLUMN IF NOT EXISTS due_date TIMESTAMP;`);
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`);
 
         await pool.query(`
-            INSERT INTO users (username, password, role) 
-            VALUES ('admin', '123', 'admin')
+            INSERT INTO users (username, password, role, status) 
+            VALUES ('admin', '123', 'admin', 'active')
             ON CONFLICT (username) DO NOTHING;
         `);
 
@@ -150,7 +152,7 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/users', async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, username, role, created_at FROM users ORDER BY id ASC');
+        const result = await pool.query('SELECT id, username, role, status, created_at FROM users ORDER BY id ASC');
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -159,14 +161,43 @@ app.get('/api/users', async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
     try {
-        const { username, password, role } = req.body;
+        const { username, password, role, status } = req.body;
         const result = await pool.query(
-            'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING id, username, role',
-            [username, password, role || 'staff']
+            'INSERT INTO users (username, password, role, status) VALUES ($1, $2, $3, $4) RETURNING id, username, role, status',
+            [username, password, role || 'staff', status || 'active']
         );
         res.status(201).json({ success: true, user: result.rows[0] });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+// UPDATE USER STATUS (Active / Inactive)
+app.put('/api/users/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const result = await pool.query(
+            'UPDATE users SET status = $1 WHERE id = $2 RETURNING id, username, role, status',
+            [status, id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'រកមិនឃើញ User នេះទេ' });
+        }
+        res.json({ success: true, user: result.rows[0] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// DELETE USER
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        res.json({ success: true, message: 'Deleted user successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -303,27 +334,6 @@ app.delete('/api/accounting/master-items/:id', async (req, res) => {
         await pool.query('DELETE FROM master_items WHERE id = $1', [id]);
         res.json({ success: true, message: "Master item deleted successfully!" });
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-// បន្ថែម Endpoint សម្រាប់ប្តូរ Status របស់ User (Active / Inactive)
-app.put('/api/users/:id/status', async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const { status } = req.body; // 'active' ឬ 'inactive'
-
-        // បើសີលជា Database ប្រើ PostgreSQL (Neon DB)
-        const query = 'UPDATE users SET status = $1 WHERE id = $2 RETURNING *';
-        const values = [status, userId];
-        const result = await pool.query(query, values);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'រកមិនឃើញ User នេះទេ' });
-        }
-
-        res.json({ success: true, user: result.rows[0] });
-    } catch (err) {
-        console.error("Error updating user status:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
