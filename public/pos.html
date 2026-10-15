@@ -1,0 +1,64 @@
+<div class="row g-3 h-100" id="posCartSubRow">
+    <div class="col-lg-6" id="posCatalogCol">
+        <div id="posGridCard" class="card p-3 shadow-sm h-100 bg-white border-success border-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-success fw-bold m-0 fs-6 d-flex align-items-center gap-1">
+                    <i class="bi bi-grid-3x3-gap-fill"></i> ជ្រើសរើសទំនិញ (POS Catalog)
+                </h6>
+            </div>
+            <div class="mb-2">
+                <select class="form-select form-select-sm" id="posSelectCategory" onchange="onPosCategoryChanged()">
+                    <option value="">-- គ្រប់ Category ទាំងអស់ --</option>
+                </select>
+            </div>
+            <div id="posImageGrid" class="row g-2" style="max-height: 420px; overflow-y: auto;">
+                <p class="text-muted text-center py-3">សូមជ្រើសរើស Category ដើម្បីបង្ហាញរូបភាពទំនិញ</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6" id="posCartCol">
+        <div id="currentCartCard" class="card p-3 shadow-sm h-100 bg-white border-success border-2 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-success fw-bold m-0 fs-5 d-flex align-items-center gap-1">
+                    <i class="bi bi-cart-fill"></i> វិក្កយបត្របច្ចុប្បន្ន (Current Cart)
+                </h6>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary py-1 px-3" onclick="clearCurrentCart()" style="font-size: 13px;">សម្អាត (Clear)</button>
+                </div>
+            </div>
+            <div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
+                <div class="col-6">
+                    <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">💱 ១ដុល្លារ = រៀល:</label>
+                </div>
+                <div class="col-6">
+                    <input type="number" class="form-control form-control-sm fw-bold" id="exchangeRateInput" value="4000" oninput="renderCartTable()" style="font-size: 14px;">
+                </div>
+            </div>
+            <div class="table-responsive flex-grow-1" style="max-height: 220px; overflow-y: auto;">
+                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 14px;">
+                    <thead class="table-light sticky-top">
+                        <tr style="font-size: 13px;">
+                            <th>ទំនិញ (Item)</th>
+                            <th>ចំនួន (Qty)</th>
+                            <th>តម្លៃ (Price)</th>
+                            <th>សរុប (Total)</th>
+                            <th class="text-center">កែ/លុប</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTableBody"></tbody>
+                </table>
+            </div>
+            <div class="mt-auto pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="text-success fw-bold m-0" id="cartGrandTotalLabel" style="font-size: 16px;">សរុប: $0.00 / 0 រៀល</h5>
+                </div>
+                <button class="btn btn-success shadow-sm w-100 fw-bold py-2 mb-2" onclick="checkoutAndPrintInvoice()" style="font-size: 15px;">
+                    <i class="bi bi-printer-fill me-1"></i> បញ្ចប់ការលក់ និងព្រិន្ទ (Checkout & Print)
+                </button>
+                <button class="btn btn-warning shadow-sm w-100 fw-bold py-2 text-dark" onclick="checkoutAsCreditSale()" style="font-size: 15px;">
+                    <i class="bi bi-person-exclamation me-1"></i> លក់ជំពាក់ (Credit Sale)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
