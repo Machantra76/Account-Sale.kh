@@ -293,31 +293,20 @@
                                     <input type="number" class="form-control form-control-sm fw-bold" id="exchangeRateInput" value="4000" oninput="renderCartTable()" style="font-size: 14px;">
                                 </div>
                             </div>
-                            <!-- ផ្នែកជ្រើសរើស លេខតុ / លេខបន្ទប់ VIP -->
-                            <!-- ផ្នែកជ្រើសរើស លេខតុ / លេខបន្ទប់ VIP (អាចបន្ថែមថ្មីបាន) -->
-<div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
-    <div class="col-6">
-        <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ / បន្ទប់ VIP:</label>
-    </div>
-    <div class="col-6">
-        <select class="form-select form-select-sm fw-bold text-primary" id="tableOrVipSelect" onchange="handleTableSelectionChange(this)">
-            <option value="ទូទៅ (Normal)">-- ធម្មតា / ទូទៅ --</option>
-            <optgroup label="តុ (Tables)" id="tableOptGroup">
-                <option value="តុទី ១">តុទី ១</option>
-                <option value="តុទី ២">តុទី ២</option>
-                <option value="តុទី ៣">តុទី ៣</option>
-                <option value="តុទី ៤">តុទី ៤</option>
-            </optgroup>
-            <optgroup label="បន្ទប់ VIP (VIP Rooms)" id="vipOptGroup">
-                <option value="បន្ទប់ VIP 01">បន្ទប់ VIP 01</option>
-                <option value="បន្ទប់ VIP 02">បន្ទប់ VIP 02</option>
-                <option value="បន្ទប់ VIP 03">បន្ទប់ VIP 03</option>
-            </optgroup>
-            <!-- ជម្រើសសម្រាប់ចុចបន្ថែមតុថ្មី -->
-            <option value="ADD_NEW" style="color: #4f46e5; font-weight: bold;">➕ បន្ថែមតុ ឬបន្ទប់ថ្មី...</option>
-        </select>
-    </div>
-</div>
+                            <!-- ផ្នែកជ្រើសរើស និងបន្ថែម លេខតុ / លេខបន្ទប់ VIP (Database API) -->
+                            <div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
+                                <div class="col-6">
+                                    <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ / បន្ទប់ VIP:</label>
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-select form-select-sm fw-bold text-primary" id="tableOrVipSelect" onchange="handleTableSelectionChange(this)">
+                                        <option value="ទូទៅ (Normal)">-- ធម្មតា / ទូទៅ --</option>
+                                        <optgroup label="តុ (Tables)" id="tableOptGroup"></optgroup>
+                                        <optgroup label="បន្ទប់ VIP (VIP Rooms)" id="vipOptGroup"></optgroup>
+                                        <option value="ADD_NEW" style="color: #4f46e5; font-weight: bold;">➕ បន្ថែមតុ ឬបន្ទប់ថ្មី...</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="table-responsive flex-grow-1" style="max-height: 180px; overflow-y: auto;">
                                 <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                                     <thead class="table-light sticky-top">
@@ -1104,6 +1093,77 @@
             checkLoginState();
         });
 
+        // មុខងារទាញយកបញ្ជីតុ និងបន្ទប់ VIP ពី Database API
+        async function loadTablesFromDatabase() {
+            try {
+                let res = await fetch(`${API_URL}/tables`);
+                let result = await res.json();
+
+                if (result.success && result.data) {
+                    let tableOptGroup = document.getElementById('tableOptGroup');
+                    let vipOptGroup = document.getElementById('vipOptGroup');
+
+                    if (!tableOptGroup || !vipOptGroup) return;
+
+                    tableOptGroup.innerHTML = '';
+                    vipOptGroup.innerHTML = '';
+
+                    result.data.forEach(item => {
+                        let targetGroup = (item.table_type === 'VIP') ? vipOptGroup : tableOptGroup;
+                        let newOption = document.createElement('option');
+                        newOption.value = item.table_name;
+                        newOption.textContent = item.table_name;
+                        targetGroup.appendChild(newOption);
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading tables:", err);
+            }
+        }
+
+        // មុខងារពេលអ្នកប្រើប្រាស់ចុចបង្កើតតុ ឬបន្ទប់ VIP ថ្មី
+        async function handleTableSelectionChange(selectElement) {
+            if (selectElement.value === "ADD_NEW") {
+                let userInput = prompt("សូមបញ្ចូល លេខតុ ឬ ឈ្មោះបន្ទប់ VIP ថ្មី:");
+                if (userInput && userInput.trim() !== "") {
+                    let cleanName = userInput.trim();
+                    
+                    let typeChoice = confirm("ចុច 'OK' ប្រសិនបើវាជា 'តុ (Table)' \nចុច 'Cancel' ប្រសិនបើវាជា 'បន្ទប់ VIP'");
+                    let tableType = typeChoice ? 'TABLE' : 'VIP';
+                    
+                    try {
+                        let res = await fetch(`${API_URL}/tables`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ table_type: tableType, table_name: cleanName })
+                        });
+                        let result = await res.json();
+
+                        if (res.ok && result.success) {
+                            await loadTablesFromDatabase();
+                            selectElement.value = cleanName;
+                            
+                            let loggedUser = JSON.parse(sessionStorage.getItem("loggedUserObj") || "{}");
+                            if (loggedUser.username) {
+                                logActivity(loggedUser, `បន្ថែមតុ/បន្ទប់ VIP ថ្មី: ${cleanName}`);
+                            }
+
+                            alert(`✅ បានបង្កើត "${cleanName}" ចូលក្នុង Database ដោយជោគជ័យ!`);
+                        } else {
+                            alert(`❌ ${result.error || 'តុ ឬបន្ទប់នេះមានរួចហើយ!'}`);
+                            selectElement.value = "ទូទៅ (Normal)";
+                        }
+                    } catch (err) {
+                        console.error("Error saving table:", err);
+                        alert("❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!");
+                        selectElement.value = "ទូទៅ (Normal)";
+                    }
+                } else {
+                    selectElement.value = "ទូទៅ (Normal)";
+                }
+            }
+        }
+
         async function logActivity(userObj, actionText) {
             try {
                 await fetch(`${API_BASE}/api/activity-logs`, {
@@ -1218,33 +1278,6 @@
                 shiftTbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger py-3">កំហុសក្នុងការទាញទិន្នន័យ Activity Logs</td></tr>`;
             }
         }
-        function handleTableSelectionChange(selectElement) {
-    if (selectElement.value === "ADD_NEW") {
-        let userInput = prompt("សូមបញ្ចូល លេខតុ ឬ ឈ្មោះបន្ទប់ VIP ថ្មី:");
-        if (userInput && userInput.trim() !== "") {
-            let cleanName = userInput.trim();
-            
-            // សួរថាតើវាជាតុ ឬបន្ទប់ VIP
-            let typeChoice = confirm("ចុច 'OK' ប្រសិនបើវាជា 'តុ (Table)' \nចុច 'Cancel' ប្រសិនបើវាជា 'បន្ទប់ VIP'");
-            
-            let targetGroup = typeChoice ? document.getElementById('tableOptGroup') : document.getElementById('vipOptGroup');
-            
-            // បង្កើត Option ថ្មី
-            let newOption = document.createElement('option');
-            newOption.value = cleanName;
-            newOption.textContent = cleanName;
-            
-            // បញ្ចូលទៅក្នុង Group ដែលបានរើស
-            targetGroup.appendChild(newOption);
-            
-            // ធ្វើឱ្យវា Selected លើតុដែលទើបបង្កើតថ្មីដោយស្វ័យប្រវត្តិ
-            selectElement.value = cleanName;
-        } else {
-            // ប្រសិនបើចុច Cancel ឱ្យវាត្រឡប់ទៅទូទៅវិញ
-            selectElement.value = "ទូទៅ (Normal)";
-        }
-    }
-}
 
         function resetActivityFilter() {
             document.getElementById('activityStartDate').value = '';
@@ -1667,8 +1700,6 @@
 
         async function toggleUserStatus(userId, currentStatus) {
             let newStatus = currentStatus === 'inactive' ? 'active' : 'inactive';
-            let actionName = newStatus === 'inactive' ? 'បិទដំណើរការ (Inactive)' : 'បើកដំណើរការ (Active)';
-
             if (!confirm(`តើអ្នកពិតជាចង់ប្តូរស្ថានភាពគណនីនេះទៅជា "${newStatus.toUpperCase()}" មែនទេ?`)) return;
 
             try {
@@ -1876,6 +1907,7 @@
         }
 
         async function loadAppData() {
+            await loadTablesFromDatabase();
             await fetchInvoicesFromServer();
             await fetchMasterItems();
             await fetchTransactions();
