@@ -176,7 +176,6 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-// UPDATE USER STATUS (Active / Inactive)
 app.put('/api/users/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -194,7 +193,6 @@ app.put('/api/users/:id/status', async (req, res) => {
     }
 });
 
-// DELETE USER
 app.delete('/api/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -205,7 +203,7 @@ app.delete('/api/users/:id', async (req, res) => {
     }
 });
 
-// INVOICES API (Updated to support table_info)
+// INVOICES API (Updated with table_info)
 app.get('/api/accounting/invoices', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM invoices ORDER BY date DESC');
