@@ -104,6 +104,15 @@ const initTables = async () => {
         );
     `;
 
+    const queryTables = `
+        CREATE TABLE IF NOT EXISTS restaurant_tables (
+            id SERIAL PRIMARY KEY,
+            table_type VARCHAR(50) NOT NULL,
+            table_name VARCHAR(100) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
     try {
         await pool.query(queryMaster);
         await pool.query(queryTransactions);
@@ -112,6 +121,7 @@ const initTables = async () => {
         await pool.query(queryLogs);
         await pool.query(queryDebts);
         await pool.query(queryDebtPayments);
+        await pool.query(queryTables);
         
         await pool.query(`ALTER TABLE master_items ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'EXPENSE';`);
         await pool.query(`ALTER TABLE master_items ADD COLUMN IF NOT EXISTS image_url TEXT;`);
@@ -132,12 +142,43 @@ const initTables = async () => {
             ON CONFLICT (username) DO NOTHING;
         `);
 
+        // បញ្ចូលតុ/បន្ទប់គំរូដំបូង ប្រសិនបើគ្មានក្នុង Database
+        await pool.query(`
+            INSERT INTO restaurant_tables (table_type, table_name) VALUES
+            ('TABLE', 'តុទី ១'), ('TABLE', 'តុទី ២'), ('TABLE', 'តុទី ៣'), ('TABLE', 'តុទី ៤'),
+            ('VIP', 'បន្ទប់ VIP 01'), ('VIP', 'បន្ទប់ VIP 02'), ('VIP', 'បន្ទប់ VIP 03')
+            ON CONFLICT (table_name) DO NOTHING;
+        `);
+
         console.log("Database tables and columns are ready and safe.");
     } catch (err) {
         console.error("Error creating/updating tables:", err);
     }
 };
 initTables();
+
+// RESTAURANT TABLES API
+app.get('/api/accounting/tables', async (req, res) => {
+    try {
+        let result = await pool.query('SELECT * FROM restaurant_tables ORDER BY id ASC');
+        res.json({ success: true, data: result.rows });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.post('/api/accounting/tables', async (req, res) => {
+    try {
+        const { table_type, table_name } = req.body;
+        let result = await pool.query(
+            'INSERT INTO restaurant_tables (table_type, table_name) VALUES ($1, $2) ON CONFLICT (table_name) DO NOTHING RETURNING *;',
+            [table_type || 'TABLE', table_name]
+        );
+        res.status(201).json({ success: true, data: result.rows[0] });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
 
 // AUTH & USERS API
 app.post('/api/login', async (req, res) => {
@@ -203,7 +244,7 @@ app.delete('/api/users/:id', async (req, res) => {
     }
 });
 
-// INVOICES API (Updated with table_info)
+// INVOICES API
 app.get('/api/accounting/invoices', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM invoices ORDER BY date DESC');
