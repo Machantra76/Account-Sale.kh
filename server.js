@@ -65,6 +65,7 @@ const initTables = async () => {
         CREATE TABLE IF NOT EXISTS invoices (
             id VARCHAR(100) PRIMARY KEY,
             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            table_info VARCHAR(100) DEFAULT 'ទូទៅ',
             items JSONB NOT NULL
         );
     `;
@@ -123,6 +124,7 @@ const initTables = async () => {
         await pool.query(`ALTER TABLE transactions ADD COLUMN IF NOT EXISTS item_id INT;`);
         await pool.query(`ALTER TABLE debts ADD COLUMN IF NOT EXISTS due_date TIMESTAMP;`);
         await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`);
+        await pool.query(`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS table_info VARCHAR(100) DEFAULT 'ទូទៅ';`);
 
         await pool.query(`
             INSERT INTO users (username, password, role, status) 
@@ -203,7 +205,7 @@ app.delete('/api/users/:id', async (req, res) => {
     }
 });
 
-// INVOICES API
+// INVOICES API (Updated to support table_info)
 app.get('/api/accounting/invoices', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM invoices ORDER BY date DESC');
@@ -215,10 +217,10 @@ app.get('/api/accounting/invoices', async (req, res) => {
 
 app.post('/api/accounting/invoices', async (req, res) => {
     try {
-        const { id, date, items } = req.body;
+        const { id, date, table_info, items } = req.body;
         await pool.query(
-            'INSERT INTO invoices (id, date, items) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET items = $3, date = $2',
-            [id, date || new Date(), JSON.stringify(items)]
+            'INSERT INTO invoices (id, date, table_info, items) VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET items = $4, date = $2, table_info = $3',
+            [id, date || new Date(), table_info || 'ទូទៅ', JSON.stringify(items)]
         );
         res.json({ success: true, message: 'Saved invoice successfully' });
     } catch (err) {
