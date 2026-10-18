@@ -294,27 +294,30 @@
                                 </div>
                             </div>
                             <!-- ផ្នែកជ្រើសរើស លេខតុ / លេខបន្ទប់ VIP -->
-                            <div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
-                                <div class="col-6">
-                                    <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ / បន្ទប់ VIP:</label>
-                                </div>
-                                <div class="col-6">
-                                    <select class="form-select form-select-sm fw-bold text-primary" id="tableOrVipSelect">
-                                        <option value="ទូទៅ (Normal)">-- ធម្មតា / ទូទៅ --</option>
-                                        <optgroup label="តុ (Tables)">
-                                            <option value="តុទី ១">តុទី ១</option>
-                                            <option value="តុទី ២">តុទី ២</option>
-                                            <option value="តុទី ៣">តុទី ៣</option>
-                                            <option value="តុទី ៤">តុទី ៤</option>
-                                        </optgroup>
-                                        <optgroup label="បន្ទប់ VIP (VIP Rooms)">
-                                            <option value="បន្ទប់ VIP 01">បន្ទប់ VIP 01</option>
-                                            <option value="បន្ទប់ VIP 02">បន្ទប់ VIP 02</option>
-                                            <option value="បន្ទប់ VIP 03">បន្ទប់ VIP 03</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
+                            <!-- ផ្នែកជ្រើសរើស លេខតុ / លេខបន្ទប់ VIP (អាចបន្ថែមថ្មីបាន) -->
+<div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
+    <div class="col-6">
+        <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ / បន្ទប់ VIP:</label>
+    </div>
+    <div class="col-6">
+        <select class="form-select form-select-sm fw-bold text-primary" id="tableOrVipSelect" onchange="handleTableSelectionChange(this)">
+            <option value="ទូទៅ (Normal)">-- ធម្មតា / ទូទៅ --</option>
+            <optgroup label="តុ (Tables)" id="tableOptGroup">
+                <option value="តុទី ១">តុទី ១</option>
+                <option value="តុទី ២">តុទី ២</option>
+                <option value="តុទី ៣">តុទី ៣</option>
+                <option value="តុទី ៤">តុទី ៤</option>
+            </optgroup>
+            <optgroup label="បន្ទប់ VIP (VIP Rooms)" id="vipOptGroup">
+                <option value="បន្ទប់ VIP 01">បន្ទប់ VIP 01</option>
+                <option value="បន្ទប់ VIP 02">បន្ទប់ VIP 02</option>
+                <option value="បន្ទប់ VIP 03">បន្ទប់ VIP 03</option>
+            </optgroup>
+            <!-- ជម្រើសសម្រាប់ចុចបន្ថែមតុថ្មី -->
+            <option value="ADD_NEW" style="color: #4f46e5; font-weight: bold;">➕ បន្ថែមតុ ឬបន្ទប់ថ្មី...</option>
+        </select>
+    </div>
+</div>
                             <div class="table-responsive flex-grow-1" style="max-height: 180px; overflow-y: auto;">
                                 <table class="table table-sm table-hover align-middle mb-0" style="font-size: 13px;">
                                     <thead class="table-light sticky-top">
@@ -1215,6 +1218,33 @@
                 shiftTbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger py-3">កំហុសក្នុងការទាញទិន្នន័យ Activity Logs</td></tr>`;
             }
         }
+        function handleTableSelectionChange(selectElement) {
+    if (selectElement.value === "ADD_NEW") {
+        let userInput = prompt("សូមបញ្ចូល លេខតុ ឬ ឈ្មោះបន្ទប់ VIP ថ្មី:");
+        if (userInput && userInput.trim() !== "") {
+            let cleanName = userInput.trim();
+            
+            // សួរថាតើវាជាតុ ឬបន្ទប់ VIP
+            let typeChoice = confirm("ចុច 'OK' ប្រសិនបើវាជា 'តុ (Table)' \nចុច 'Cancel' ប្រសិនបើវាជា 'បន្ទប់ VIP'");
+            
+            let targetGroup = typeChoice ? document.getElementById('tableOptGroup') : document.getElementById('vipOptGroup');
+            
+            // បង្កើត Option ថ្មី
+            let newOption = document.createElement('option');
+            newOption.value = cleanName;
+            newOption.textContent = cleanName;
+            
+            // បញ្ចូលទៅក្នុង Group ដែលបានរើស
+            targetGroup.appendChild(newOption);
+            
+            // ធ្វើឱ្យវា Selected លើតុដែលទើបបង្កើតថ្មីដោយស្វ័យប្រវត្តិ
+            selectElement.value = cleanName;
+        } else {
+            // ប្រសិនបើចុច Cancel ឱ្យវាត្រឡប់ទៅទូទៅវិញ
+            selectElement.value = "ទូទៅ (Normal)";
+        }
+    }
+}
 
         function resetActivityFilter() {
             document.getElementById('activityStartDate').value = '';
