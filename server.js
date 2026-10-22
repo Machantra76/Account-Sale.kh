@@ -11,6 +11,11 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
+// បន្ថែមត្រង់នេះ ដើម្បីការពារកុំឱ្យ Node.js Crash ពេល Database หลุดการតភ្ជាប់
+pool.on('error', (err, client) => {
+    console.error('❌ Unexpected error on idle PostgreSQL client', err);
+    // មិនបាច់ throw error ទេ ដើម្បីឱ្យ Server នៅតែបន្តដំណើរការធម្មតា
+});
 
 pool.connect()
     .then(() => console.log("Connected to PostgreSQL Database successfully!"))
