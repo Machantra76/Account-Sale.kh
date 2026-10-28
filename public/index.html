@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- html2pdf for Save PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- QRCode JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --bg-body: #f8fafc;
@@ -295,16 +297,22 @@
                             </div>
                             <!-- ផ្នែកជ្រើសរើស និងបន្ថែម លេខតុ / លេខបន្ទប់ VIP (Database API) -->
                             <div class="row g-2 align-items-center mb-2 bg-light p-2 rounded-3 border">
-                                <div class="col-6">
-                                    <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ / បន្ទប់ VIP:</label>
+                                <div class="col-4">
+                                    <label class="form-label text-muted fw-bold mb-0" style="font-size: 13px;">🏷 តុ/បន្ទប់:</label>
                                 </div>
                                 <div class="col-6">
                                     <select class="form-select form-select-sm fw-bold text-primary" id="tableOrVipSelect" onchange="handleTableSelectionChange(this)">
-                                        <option value="ទូទៅ (Normal)">-- ធម្មតា / ទូទៅ --</option>
+                                        <option value="ទូទៅ (Normal)">-- ធម្មតា --</option>
                                         <optgroup label="តុ (Tables)" id="tableOptGroup"></optgroup>
                                         <optgroup label="បន្ទប់ VIP (VIP Rooms)" id="vipOptGroup"></optgroup>
-                                        <option value="ADD_NEW" style="color: #4f46e5; font-weight: bold;">➕ បន្ថែមតុ ឬបន្ទប់ថ្មី...</option>
+                                        <option value="ADD_NEW" style="color: #4f46e5; font-weight: bold;">➕ បន្ថែមតុថ្មី...</option>
                                     </select>
+                                </div>
+                                <div class="col-2 text-end">
+                                    <!-- ប៊ូតុង QR Code ក្បែរលេខតុ -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100 py-1 px-0" onclick="openTableQRCodeModal()" title="ព្រិន្ទ/ទាញយក QR តុនេះ">
+                                        <i class="bi bi-qr-code"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="table-responsive flex-grow-1" style="max-height: 180px; overflow-y: auto;">
@@ -543,6 +551,33 @@
                             <tbody id="usersListTableBody"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE QR CODE MODAL -->
+    <div class="modal fade" id="tableQRCodeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 text-center">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold fs-6">📱 QR Code សម្រាប់កុម្ម៉ង់ទំនិញ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h4 class="fw-bold text-dark mb-3" id="qrModalTableName">តុទី ១</h4>
+                    <p class="text-muted small mb-4">សូមស្កែន QR Code នេះ ដើម្បីមើលម៉ឺនុយ និងបញ្ជាទិញម្ហូប/ភេសជ្ជៈដោយខ្លួនឯង</p>
+                    
+                    <!-- កន្លែងបង្ហាញ QR Code -->
+                    <div id="qrcodeContainer" class="d-flex justify-content-center mb-3 p-3 bg-white border rounded-3 shadow-sm d-inline-block"></div>
+                    
+                    <div class="mt-2">
+                        <input type="text" class="form-control form-control-sm text-center bg-light text-muted" id="qrCodeUrlDisplay" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light justify-content-between">
+                    <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">បិទ</button>
+                    <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" onclick="printQRCodeCard()">🖨 បោះពុម្ព QR នេះ</button>
                 </div>
             </div>
         </div>
@@ -1078,6 +1113,7 @@
         let debtReportModal;
         let payableReportModal;
         let payDebtModal;
+        let tableQRCodeModal;
 
         document.addEventListener("DOMContentLoaded", () => {
             editMasterModal = new bootstrap.Modal(document.getElementById('editMasterModal'));
@@ -1090,8 +1126,78 @@
             debtReportModal = new bootstrap.Modal(document.getElementById('debtReportModal'));
             payableReportModal = new bootstrap.Modal(document.getElementById('payableReportModal'));
             payDebtModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
+            tableQRCodeModal = new bootstrap.Modal(document.getElementById('tableQRCodeModal'));
             checkLoginState();
         });
+
+        // មុខងារបើកផ្ទាំង QR Code សម្រាប់តុដែលបានជ្រើសរើស
+        function openTableQRCodeModal() {
+            let selectElement = document.getElementById('tableOrVipSelect');
+            let selectedTable = selectElement.value;
+
+            if (!selectedTable || selectedTable === "ADD_NEW" || selectedTable.includes("ទូទៅ")) {
+                alert("⚠ សូមជ្រើសរើស តុ ឬ បន្ទប់ VIP ជាក់លាក់ណាមួយសិន!");
+                return;
+            }
+
+            document.getElementById('qrModalTableName').innerText = `🏷 ${selectedTable}`;
+            
+            let baseUrl = window.location.origin;
+            let menuUrl = `${baseUrl}/menu.html?table=${encodeURIComponent(selectedTable)}`;
+            
+            document.getElementById('qrCodeUrlDisplay').value = menuUrl;
+
+            let qrContainer = document.getElementById('qrcodeContainer');
+            qrContainer.innerHTML = "";
+
+            new QRCode(qrContainer, {
+                text: menuUrl,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            tableQRCodeModal.show();
+        }
+
+        // មុខងារព្រិន្ទ QR Code យកទៅបិទលើតុ
+        function printQRCodeCard() {
+            let tableName = document.getElementById('qrModalTableName').innerText;
+            let qrUrl = document.getElementById('qrCodeUrlDisplay').value;
+            let qrCanvas = document.querySelector('#qrcodeContainer canvas');
+            let qrImageSrc = qrCanvas ? qrCanvas.toDataURL("image/png") : "";
+
+            let printWindow = window.open('', '_blank', 'height=600,width=400');
+            printWindow.document.write('<html><head><title>ព្រិន្ទ QR Code តុ</title>');
+            printWindow.document.write(`
+                <style>
+                    @media print {
+                        @page { size: 80mm 120mm; margin: 0; }
+                        body { width: 72mm; margin: 4mm; text-align: center; }
+                    }
+                    body { font-family: 'Kantumruy Pro', sans-serif; text-align: center; padding: 20px; color: #000; }
+                    h2 { margin: 5px 0; font-size: 18px; }
+                    p { font-size: 11px; color: #555; }
+                    .qr-box { margin: 15px auto; padding: 10px; border: 2px dashed #333; display: inline-block; border-radius: 10px; }
+                    img { width: 160px; height: 160px; }
+                </style>
+            `);
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(`<h2>ស្កែនដើម្បីកុម្ម៉ង់</h2>`);
+            printWindow.document.write(`<h1 style="color: #4f46e5; margin: 5px 0;">${tableName}</h1>`);
+            printWindow.document.write(`<p>សូមស្កែនជាមួយកាមេរ៉ាទូរសព្ទដៃ ដើម្បីមើលម៉ឺនុយ និងបញ្ជាទិញ</p>`);
+            printWindow.document.write(`<div class="qr-box"><img src="${qrImageSrc}" /></div>`);
+            printWindow.document.write(`<p style="font-size: 9px; word-break: break-all;">${qrUrl}</p>`);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
 
         // មុខងារទាញយកបញ្ជីតុ និងបន្ទប់ VIP ពី Database API
         async function loadTablesFromDatabase() {
