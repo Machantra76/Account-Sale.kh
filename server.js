@@ -271,6 +271,70 @@ app.post('/api/accounting/invoices', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+// CUSTOMER QR ORDER API - សម្រាប់ទទួល Order ពីទូរសព្ទភ្ញៀវដែលបានស្កែន QR Code
+app.post('/api/customer-orders', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const { id, table_info, items } = req.body;
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ success: false, error: 'គ្មានទំនិញក្នុង Order ទេ!' });
+        }
+
+        const invoiceId = id || ('INV-QR-' + Date.now());
+        const tableInfo = table_info || 'ទូទៅ';
+
+        // ១. រក្សាទុក Order ចូលទៅក្នុងตาราง invoices ជាមួយស្ថានភាពរង់ចាំ
+        await client.query(
+            'INSERT INTO invoices (id, date, table_info, items) VALUES ($1, NOW(), $2, $3) ON CONFLICT (id) DO UPDATE SET items = $3, table_info = $2',
+            [invoiceId, tableInfo, JSON.stringify(items)]
+        );
+
+        // ២. កត់ត្រាចូល transactions (ជាប្រភេទ INCOME) និងកាត់ស្តុកស្វ័យប្រវត្តិ
+        for (let item of items) {
+            let qty = parseInt(item.quantity) || 1;
+            let price = parseFloat(item.unit_price) || 0;
+            let totalAmount = qty * price;
+
+            // បញ្ចូលទិន្នន័យការលក់
+            await client.query(
+                `INSERT INTO transactions (type, item_id, category, item_name, quantity, unit_price, amount)
+                 VALUES ('INCOME', $1, $2, $3, $4, $5, $6)`,
+                [item.item_id || null, item.category || 'General', item.item_name, qty, price, totalAmount]
+            );
+
+            // កាត់ស្តុកពី master_items ប្រសិនបើมี item_id
+            if (item.item_id) {
+                await client.query(
+                    `UPDATE master_items SET stock_quantity = stock_quantity - $1 WHERE id = $2`,
+                    [qty, item.item_id]
+                );
+            }
+        }
+
+        // ៣. កត់ត្រាចូល Activity Logs ថាមានភ្ញៀវកុម្ម៉ង់តាម QR Code
+        await client.query(
+            'INSERT INTO activity_logs (username, role, action) VALUES ($1, $2, $3)',
+            ['Customer-QR', 'CUSTOMER', `ភ្ញៀវកុម្ម៉ង់ទំនិញតាម QR Code (តុ/បន្ទប់: ${tableInfo} - វិក្កយបត្រ: ${invoiceId})`]
+        );
+
+        await client.query('COMMIT');
+        res.status(201).json({ 
+            success: true, 
+            message: 'Order placed successfully via QR Code!', 
+            invoice_id: invoiceId 
+        });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error("Error processing customer QR order:", err);
+        res.status(500).json({ success: false, error: err.message });
+    } finally {
+        client.release();
+    }
+});
 
 app.delete('/api/accounting/invoices/:id', async (req, res) => {
     try {
