@@ -1166,17 +1166,19 @@
             checkLoginState();
             startAutoCheckQROrders();
         });
-      let customerWindow = null;
+        let customerWindow = null;
 
-// ១. មុខងារបើកអេក្រង់អតិថិជន
+// ១. មុខងារបើកអេក្រង់អតិថិជន (អាចដាក់ឱ្យវាបើកស្វ័យប្រវត្តិពេល Login ចូល POS)
 function openCustomerDisplay() {
+    // បើកហ្វាល customer_display.html ក្នុង Window ថ្មីដាច់ដោយឡែក
     customerWindow = window.open('customer_display.html', 'CustomerDisplay', 'width=1024,height=768');
 }
 
-// ២. មុខងារធ្វើសមកាលកម្មទិន្នន័យ (Sync Cart & KHQR to Customer Display)
-function syncToCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
+// ២. មុខងារធ្វើសមកាលកម្មទិន្នន័យ (ហៅវាជារៀងរាល់ពេលមានការផ្លាស់ប្តូរ Cart)
+function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
+    // បើអតិថិជនបិទ Window នោះ ព្យាយាមបើកឡើងវិញ ឬមិនធ្វើអ្វីសោះ
     if (!customerWindow || customerWindow.closed) {
-        return; // ប្រសិនបើអេក្រង់អតិថិជនមិនទាន់បើក មិនបាច់បញ្ជូនទិន្នន័យ
+        // អ្នកអាចបើកវាដោយស្វ័យប្រវត្តិ ឬទុកពេលចុចปุ่มបើក
     }
 
     let subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
@@ -1184,7 +1186,6 @@ function syncToCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
     let tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
     let grandTotal = Math.max(0, subtotal - discount + tax);
     let tableName = document.getElementById('tableOrVipSelect')?.value || '';
-    let exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000;
 
     let payload = {
         type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
@@ -1194,13 +1195,15 @@ function syncToCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
         discount: discount,
         tax: tax,
         grandTotal: grandTotal,
-        rate: exchangeRate,
+        rate: 4100,
         isKhqrActive: isKhqrActive,
         qrImageSrc: qrImageSrc
     };
 
-    customerWindow.postMessage(payload, '*');
-}
+    // ส่งទិន្នន័យឆ្លងទៅកាន់អេក្រង់អតិថិជនដោយផ្ទាល់
+    if (customerWindow && !customerWindow.closed) {
+        customerWindow.postMessage(payload, '*');
+    }
 }
         // Initialize Customer Display Broadcast Channel
 const customerDisplayChannel = new BroadcastChannel('pos_customer_display');
@@ -2561,46 +2564,36 @@ function printKitchenTicket(tableInfo, items) {
             });
         }
 
-      function renderCartTable() {
-    let tbody = document.getElementById('cartTableBody');
-    if(!tbody) return;
-    tbody.innerHTML = '';
-    let grandTotal = 0;
+        function renderCartTable() {
+            let tbody = document.getElementById('cartTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let grandTotal = 0;
 
-    if (currentCart.length > 0) {
-        currentCart.forEach((item, index) => {
-            let total = item.quantity * item.unit_price;
-            grandTotal += total;
+            if (currentCart.length > 0) {
+                currentCart.forEach((item, index) => {
+                    let total = item.quantity * item.unit_price;
+                    grandTotal += total;
 
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fw-bold text-truncate" style="max-width: 110px; font-size: 13px;">${item.item_name} (${item.category})</td>
-                <td style="font-size: 13px;">${item.quantity} ${item.unit}</td>
-                <td style="font-size: 13px;">$${item.unit_price.toFixed(2)}</td>
-                <td class="text-success fw-bold" style="font-size: 13px;">$${total.toFixed(2)}</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary py-0 px-1 me-1" onclick="openEditCartModal(${index})" style="font-size: 11px;">កែ</button>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeFromCart(${index})" style="font-size: 11px;">×</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } else {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">គ្មានទំនិញក្នុងវិក្កយបត្រទេ</td></tr>`;
-    }
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="fw-bold text-truncate" style="max-width: 110px; font-size: 13px;">${item.item_name} (${item.category})</td>
+                        <td style="font-size: 13px;">${item.quantity} ${item.unit}</td>
+                        <td style="font-size: 13px;">$${item.unit_price.toFixed(2)}</td>
+                        <td class="text-success fw-bold" style="font-size: 13px;">$${total.toFixed(2)}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary py-0 px-1 me-1" onclick="openEditCartModal(${index})" style="font-size: 11px;">កែ</button>
+                            <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeFromCart(${index})" style="font-size: 11px;">×</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">គ្មានទំនិញក្នុងវិក្កយបត្រទេ</td></tr>`;
+                // Sync to Customer Display Screen
+    syncCustomerDisplay();
+            }
 
-    let exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000;
-    let grandTotalRiel = grandTotal * exchangeRate;
-    let formattedRiel = grandTotalRiel.toLocaleString();
-
-    let totalLabel = document.getElementById('cartGrandTotalLabel');
-    if(totalLabel) {
-        totalLabel.innerHTML = `សរុប: <span class="text-success">$${grandTotal.toFixed(2)}</span> / <span class="text-primary">${formattedRiel}រៀល</span>`;
-    }
-
-    // 🌟 បន្ថែមការហៅមុខងារ Sync ទៅអេក្រង់អតិថិជននៅទីនេះរាល់ពេល Cart មានការផ្លាស់ប្តូរ
-    syncToCustomerDisplay();
-}
             let exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000;
             let grandTotalRiel = grandTotal * exchangeRate;
             let formattedRiel = grandTotalRiel.toLocaleString();
@@ -2718,15 +2711,13 @@ function printKitchenTicket(tableInfo, items) {
             renderCartTable();
         }
 
-      function clearCurrentCart() {
-    currentCart = [];
-    renderCartTable();
-    
-    // បញ្ជាឱ្យអេក្រង់អតិថិជនដកទំនិញចេញ និងបង្ហាញ Welcome State វិញ
-    if (customerWindow && !customerWindow.closed) {
-        customerWindow.postMessage({ type: 'CLEAR_DISPLAY' }, '*');
-    }
-}
+        function clearCurrentCart() {
+            currentCart = [];
+            renderCartTable();
+            // Clear Customer Display
+    customerDisplayChannel.postMessage({ type: 'CLEAR_DISPLAY' });
+    localStorage.removeItem('pos_customer_display_data');
+        }
 
         async function checkoutAndPrintInvoice() {
             if (currentCart.length === 0) {
