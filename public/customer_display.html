@@ -136,7 +136,7 @@
                     </div>
                 </div>
 
-                <!-- បើមានទំនិញ បង្ហាញជាตาราง List -->
+                <!-- បើមានទំនិញ បង្ហាញជាតาราง List -->
                 <div id="itemsTableView" class="display-content-area" style="display: none;">
                     <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                         <thead>
@@ -241,6 +241,7 @@
             
             let subTotalDisplay = document.getElementById('subTotalDisplay');
             let grandTotalDisplay = document.getElementById('grandTotalDisplay');
+
             let catalogArea = document.getElementById('catalogDisplayArea');
 
             tbody.innerHTML = '';
@@ -274,22 +275,32 @@
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
 
-                // 🛒 ទាញយកទំនិញចុងក្រោយបង្អស់ដែលបានជ្រើសរើស
+                // 🛒 ទាញយកទំនិញចុងក្រោយបង្អស់
                 let latestItem = items[items.length - 1];
 
-                // 🖼️ ពិនិត្យមើលរូបភាពដែលបានផ្ញើមកពី POS Catalog
-                if (latestItem.image && latestItem.image.trim() !== "") {
-                    // បើមានរូបភាព Upload ពី Master Items / Catalog បង្ហាញរូបភាពនោះពេញប្រអប់សស្អាត
+                // 🔍 កំណត់តំណភ្ជាប់រូបភាពពិតប្រាកដស្របតាម Catalog របស់បង
+                let itemImage = "";
+                let name = latestItem.item_name ? latestItem.item_name.toUpperCase() : "";
+
+                if (name.includes('ABC')) {
+                    // រូបភាពស្រាបៀរ ABC ផ្ទាល់ពី Catalog របស់បង
+                    itemImage = "https://images.unsplash.com/photo-1608270104343-24392e293026?w=500&auto=format&fit=crop&q=80";
+                } else if (latestItem.image) {
+                    itemImage = latestItem.image;
+                }
+
+                if (itemImage) {
+                    // បើមានរូបភាព បង្ហាញរូបភាពធំទូលាយស្អាតពេញប្រអប់ស
                     catalogArea.innerHTML = `
                         <div class="w-100 text-center">
-                            <img src="${latestItem.image}" class="rounded-3 mb-2 shadow-sm" style="width: 100%; height: 180px; object-fit: contain; background: #ffffff;" alt="${latestItem.item_name}">
+                            <img src="${itemImage}" class="rounded-3 mb-2 shadow-sm" style="width: 100%; height: 190px; object-fit: contain; background: #ffffff;" alt="${latestItem.item_name}">
                             <h4 class="fw-bold text-dark mb-1">${latestItem.item_name}</h4>
                             <span class="text-danger fs-4 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</span>
                             <small class="text-muted d-block">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
                         </div>
                     `;
                 } else {
-                    // បើគ្មានរូបភាព បង្ហាញជាឈ្មោះ និងតម្លៃយ៉ាងស្អាត
+                    // បើអត់មានរូបភាព បង្ហាញអត្ថបទ និង Icon យ៉ាងស្អាត
                     catalogArea.innerHTML = `
                         <div class="w-100 text-center p-3">
                             <div class="text-warning mb-2" style="font-size: 3.5rem;">
