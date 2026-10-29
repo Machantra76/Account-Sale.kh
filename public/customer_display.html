@@ -49,7 +49,18 @@
             background: linear-gradient(135deg, #1c2541 0%, #0b132b 100%);
             border: 2px dashed #ffb703;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
+            flex-grow: 1; /* ពង្រីកឱ្យពេញកម្ពស់ផ្នែកខាងឆ្វេង */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        /* កែសម្រួលឱ្យរូបភាព ឬវីដេអូពង្រីកពេញស្អាតពេញទំហឹង */
+        .promo-media-element {
+            width: 100% !important;
+            height: 420px !important; /* ពង្រីកកម្ពស់ឱ្យធំពេញអេក្រង់ពេលទំនេរ */
+            object-fit: cover !important; 
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -75,22 +86,22 @@
 
     <!-- Main Layout -->
     <div class="row g-3 flex-grow-1">
-        <!-- ផ្នែកខាងឆ្វេង៖ បញ្ជីទំនិញ ឬ រូបភាព/វីដេអូប្រូម៉ូសិន (Upload Promo Media) -->
+        <!-- ផ្នែកខាងឆ្វេង៖ បញ្ជីទំនិញ ឬ រូបភាព/វីដេអូប្រូម៉ូសិនពេញអេក្រង់ពេលទំនេរ -->
         <div class="col-lg-8 d-flex flex-column">
             <div class="card card-custom p-3 flex-grow-1 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
                     <h6 class="m-0 fw-bold text-gold">
                         <i class="bi bi-receipt me-1"></i> បញ្ជីមុខទំនិញ (Order Items)
                     </h6>
                     <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
                 </div>
 
-                <!-- បើគ្មានទំនិញ បង្ហាញផ្នែកផ្សព្វផ្សាយពាណិជ្ជកម្ម និងកន្លែង Add File រូបភាព/វីដេអូ -->
-                <div id="emptyStateView" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center p-2">
+                <!-- បើគ្មានទំនិញ (អេក្រង់ទំនេរ) វានឹងបង្ហាញប្រូម៉ូសិនពេញទំហឹងពេញអេក្រង់ -->
+                <div id="emptyStateView" class="flex-grow-1 d-flex flex-column p-2">
                     <div class="ad-banner-container w-100">
                         <div class="d-flex justify-content-between align-items-center mb-2 px-2">
                             <div>
-                                <h4 class="fw-bold text-white mb-0" style="font-size: 18px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-gold fs-6">| WELCOME TO OUR SHOP</span></h4>
+                                <h4 class="fw-bold text-white mb-0" style="font-size: 16px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-gold fs-6">| WELCOME TO OUR SHOP</span></h4>
                             </div>
                             <!-- 🎛️ ប៊ូតុង Add File រូបភាព ឬ វីដេអូប្រូម៉ូសិន -->
                             <div>
@@ -100,25 +111,26 @@
                                 <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
                             </div>
                         </div>
-                        <p class="text-muted mb-3 small">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
                         
-                        <!-- Carousel Slider ឬ Video Container -->
-                        <div id="promoContainer" class="shadow rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center" style="max-height: 240px; min-height: 200px;">
-                            <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100" data-bs-ride="carousel" data-bs-interval="3500">
-                                <div class="carousel-inner" id="promoCarouselInner">
-                                    <div class="carousel-item active">
-                                        <img src="https://via.placeholder.com/700x250/1c2541/ffb703?text=Special+Promotion+Banner+1" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Promo 1">
+                        <!-- Carousel Slider ឬ Video Container ពេញអេក្រង់ -->
+                        <div id="promoContainer" class="shadow rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center flex-grow-1">
+                            <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="3500">
+                                <div class="carousel-inner h-100" id="promoCarouselInner">
+                                    <div class="carousel-item active h-100">
+                                        <img src="https://via.placeholder.com/900x500/1c2541/ffb703?text=Special+Promotion+Banner+1" class="promo-media-element" alt="Promo 1">
                                     </div>
-                                    <div class="carousel-item">
-                                        <img src="https://via.placeholder.com/700x250/0b132b/ffb703?text=Delicious+Food+And+Drinks+2" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Promo 2">
+                                    <div class="carousel-item h-100">
+                                        <img src="https://via.placeholder.com/900x500/0b132b/ffb703?text=Delicious+Food+And+Drinks+2" class="promo-media-element" alt="Promo 2">
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <p class="text-muted mt-2 mb-0 small" style="font-size: 12px;">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
                     </div>
                 </div>
 
-                <!-- បើមានទំនិញ បង្ហាញជាตาราง List របស់ទំនិញ -->
+                <!-- បើមានទំនិញ បង្ហាញជាតาราง List របស់ទំនិញធម្មតា -->
                 <div id="itemsTableView" class="display-content-area" style="display: none;">
                     <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                         <thead>
@@ -191,7 +203,7 @@
             }
         };
 
-        // មុខងារសម្រាប់ Upload រូបភាព ឬ វីដេអូ មកបង្ហាញជំនួស Slider
+        // មុខងារសម្រាប់ Upload រូបភាព ឬ វីដេអូ មកបង្ហាញពេញអេក្រង់ពេលទំនេរ
         function handlePromoMediaUpload(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -204,14 +216,14 @@
                 promoContainer.innerHTML = ''; // សម្អាតរបស់ចាស់
 
                 if (file.type.startsWith('video/')) {
-                    // បើជាវីដេអូ
+                    // បើជាវីដេអូ ពង្រីកពេញអេក្រង់
                     promoContainer.innerHTML = `
-                        <video src="${fileUrl}" class="w-100 rounded-3" style="max-height: 220px; object-fit: cover;" autoplay muted loop controls></video>
+                        <video src="${fileUrl}" class="promo-media-element" autoplay muted loop controls></video>
                     `;
                 } else {
-                    // បើជារូបភាព
+                    // បើជារូបភាព ពង្រីកពេញអេក្រង់
                     promoContainer.innerHTML = `
-                        <img src="${fileUrl}" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Uploaded Promo">
+                        <img src="${fileUrl}" class="promo-media-element" alt="Uploaded Promo">
                     `;
                 }
             };
