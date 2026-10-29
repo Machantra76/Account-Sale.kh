@@ -49,7 +49,7 @@
             background: linear-gradient(135deg, #1c2541 0%, #0b132b 100%);
             border: 2px dashed #ffb703;
             text-align: center;
-            padding: 25px;
+            padding: 20px;
         }
     </style>
 </head>
@@ -75,7 +75,7 @@
 
     <!-- Main Layout -->
     <div class="row g-3 flex-grow-1">
-        <!-- ផ្នែកខាងឆ្វេង៖ បញ្ជីទំនិញ ឬ រូបភាពពាណិជ្ជកម្មហាង (Carousel Slider Ads) -->
+        <!-- ផ្នែកខាងឆ្វេង៖ បញ្ជីទំនិញ ឬ រូបភាព/វីដេអូប្រូម៉ូសិន (Upload Promo Media) -->
         <div class="col-lg-8 d-flex flex-column">
             <div class="card card-custom p-3 flex-grow-1 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
@@ -85,26 +85,33 @@
                     <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
                 </div>
 
-                <!-- បើគ្មានទំនិញ បង្ហាញផ្នែកផ្សព្វផ្សាយពាណិជ្ជកម្មហាង (Ads / Promo Slider) -->
+                <!-- បើគ្មានទំនិញ បង្ហាញផ្នែកផ្សព្វផ្សាយពាណិជ្ជកម្ម និងកន្លែង Add File រូបភាព/វីដេអូ -->
                 <div id="emptyStateView" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center p-2">
                     <div class="ad-banner-container w-100">
-                        <div class="mb-2 text-gold" style="font-size: 3rem;">
-                            <i class="bi bi-cup-hot-fill"></i>
+                        <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                            <div>
+                                <h4 class="fw-bold text-white mb-0" style="font-size: 18px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-gold fs-6">| WELCOME TO OUR SHOP</span></h4>
+                            </div>
+                            <!-- 🎛️ ប៊ូតុង Add File រូបភាព ឬ វីដេអូប្រូម៉ូសិន -->
+                            <div>
+                                <label for="promoMediaInput" class="btn btn-sm btn-outline-warning py-1 px-2 fw-bold" style="font-size: 11px; cursor: pointer;">
+                                    <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
+                                </label>
+                                <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
+                            </div>
                         </div>
-                        <h4 class="fw-bold text-white mb-1">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង</h4>
-                        <p class="text-muted mb-3 small">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ!</p>
+                        <p class="text-muted mb-3 small">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
                         
-                        <!-- Carousel Slider សម្រាប់រំកិលរូបភាពពាណិជ្ជកម្មហាង -->
-                        <div id="shopPromoCarousel" class="carousel slide carousel-fade shadow rounded-3 overflow-hidden" data-bs-ride="carousel" data-bs-interval="3500">
-                            <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img src="https://via.placeholder.com/700x250/1c2541/ffb703?text=Special+Promotion+Banner+1" class="d-block w-100 rounded-3" style="max-height: 230px; object-fit: cover;" alt="Promo 1">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="https://via.placeholder.com/700x250/0b132b/ffb703?text=Delicious+Food+And+Drinks+2" class="d-block w-100 rounded-3" style="max-height: 230px; object-fit: cover;" alt="Promo 2">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="https://via.placeholder.com/700x250/3a506b/ffffff?text=Discount+20%+Today+3" class="d-block w-100 rounded-3" style="max-height: 230px; object-fit: cover;" alt="Promo 3">
+                        <!-- Carousel Slider ឬ Video Container -->
+                        <div id="promoContainer" class="shadow rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center" style="max-height: 240px; min-height: 200px;">
+                            <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100" data-bs-ride="carousel" data-bs-interval="3500">
+                                <div class="carousel-inner" id="promoCarouselInner">
+                                    <div class="carousel-item active">
+                                        <img src="https://via.placeholder.com/700x250/1c2541/ffb703?text=Special+Promotion+Banner+1" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Promo 1">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="https://via.placeholder.com/700x250/0b132b/ffb703?text=Delicious+Food+And+Drinks+2" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Promo 2">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -133,13 +140,13 @@
         <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់សរុប និងស្ថានភាពបង់ប្រាក់ -->
         <div class="col-lg-4 d-flex flex-column gap-3">
             <div class="card card-custom p-4">
-                <h6 class="text-muted mb-3 fw-bold" style="font-size: 13px;">សរុបការទូទាត់</h6>
+                <h6 class="text-muted mb-3 fw-bold" style="font-size: 13px;">សរុបការទូទាត់ (Payment Summary)</h6>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">សរុបជារួម:</span>
+                    <span class="text-muted">សរុបជារួម (Subtotal):</span>
                     <span class="fw-bold" id="subTotalDisplay">$0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">បញ្ចុះតម្លៃ:</span>
+                    <span class="text-muted">បញ្ចុះតម្លៃ (Discount):</span>
                     <span class="text-danger" id="discountDisplay">-$0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
@@ -148,7 +155,7 @@
                 </div>
 
                 <div class="p-3 rounded-3" style="background-color: #0b132b; border: 1px solid #3a506b;">
-                    <small class="text-success fw-bold d-block mb-1">ទឹកប្រាក់ត្រូវបង់សរុប</small>
+                    <small class="text-success fw-bold d-block mb-1">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
                     <div class="d-flex justify-content-between align-items-center">
                         <h2 class="text-gold fw-bold m-0" id="grandTotalDisplay">$0.00</h2>
                         <span class="badge bg-secondary px-2 py-1" id="totalQtyBadge">៛ 0</span>
@@ -160,7 +167,7 @@
                 <div class="text-muted mb-2" style="font-size: 2.5rem;">
                     <i class="bi bi-credit-card-2-front"></i>
                 </div>
-                <p class="text-muted m-0" id="paymentStatusText">កំពុងរង់ចាំការទូទាត់ប្រាក់...</p>
+                <p class="text-muted m-0" id="paymentStatusText">កំពុងរង់ចាំការទូទាត់ប្រាក់... | Waiting for payment...</p>
             </div>
         </div>
     </div>
@@ -173,7 +180,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script សម្រាប់ Sync ទិន្នន័យពីអេក្រង់មុខ (POS Index.html) -->
+    <!-- Script សម្រាប់ Sync ទិន្នន័យ និង Upload File រូបភាព/វីដេអូ -->
     <script>
         const channel = new BroadcastChannel('pos_customer_display_channel');
 
@@ -183,6 +190,34 @@
                 updateCustomerDisplay(data.items);
             }
         };
+
+        // មុខងារសម្រាប់ Upload រូបភាព ឬ វីដេអូ មកបង្ហាញជំនួស Slider
+        function handlePromoMediaUpload(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let fileReader = new FileReader();
+            let promoContainer = document.getElementById('promoContainer');
+
+            fileReader.onload = function(e) {
+                let fileUrl = e.target.result;
+                promoContainer.innerHTML = ''; // សម្អាតរបស់ចាស់
+
+                if (file.type.startsWith('video/')) {
+                    // បើជាវីដេអូ
+                    promoContainer.innerHTML = `
+                        <video src="${fileUrl}" class="w-100 rounded-3" style="max-height: 220px; object-fit: cover;" autoplay muted loop controls></video>
+                    `;
+                } else {
+                    // បើជារូបភាព
+                    promoContainer.innerHTML = `
+                        <img src="${fileUrl}" class="d-block w-100 rounded-3" style="max-height: 220px; object-fit: cover;" alt="Uploaded Promo">
+                    `;
+                }
+            };
+
+            fileReader.readAsDataURL(file);
+        }
 
         function updateCustomerDisplay(items) {
             let tbody = document.getElementById('displayItemsTableBody');
