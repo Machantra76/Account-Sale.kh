@@ -50,17 +50,25 @@
             border: 2px dashed #ffb703;
             text-align: center;
             padding: 15px;
-            flex-grow: 1; /* ពង្រីកឱ្យពេញកម្ពស់ផ្នែកខាងឆ្វេង */
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-        /* កែសម្រួលឱ្យរូបភាព ឬវីដេអូពង្រីកពេញស្អាតពេញទំហឹង */
         .promo-media-element {
             width: 100% !important;
-            height: 420px !important; /* ពង្រីកកម្ពស់ឱ្យធំពេញអេក្រង់ពេលទំនេរ */
-            object-fit: cover !important; 
+            height: 420px !important;
+            object-fit: cover !important;
             border-radius: 10px;
+        }
+        /* 🎨 ប្រអប់ខាងស្តាំពណ៌ស តាមសំណូមពរ */
+        .card-white-custom {
+            background-color: #ffffff !important;
+            color: #212529 !important;
+            border: 1px solid #ced4da;
+        }
+        .card-white-custom .text-muted {
+            color: #6c757d !important;
         }
     </style>
 </head>
@@ -86,7 +94,7 @@
 
     <!-- Main Layout -->
     <div class="row g-3 flex-grow-1">
-        <!-- ផ្នែកខាងឆ្វេង៖ បញ្ជីទំនិញ ឬ រូបភាព/វីដេអូប្រូម៉ូសិនពេញអេក្រង់ពេលទំនេរ -->
+        <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ -->
         <div class="col-lg-8 d-flex flex-column">
             <div class="card card-custom p-3 flex-grow-1 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
@@ -96,14 +104,13 @@
                     <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
                 </div>
 
-                <!-- បើគ្មានទំនិញ (អេក្រង់ទំនេរ) វានឹងបង្ហាញប្រូម៉ូសិនពេញទំហឹងពេញអេក្រង់ -->
+                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ) -->
                 <div id="emptyStateView" class="flex-grow-1 d-flex flex-column p-2">
                     <div class="ad-banner-container w-100">
                         <div class="d-flex justify-content-between align-items-center mb-2 px-2">
                             <div>
                                 <h4 class="fw-bold text-white mb-0" style="font-size: 16px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-gold fs-6">| WELCOME TO OUR SHOP</span></h4>
                             </div>
-                            <!-- 🎛️ ប៊ូតុង Add File រូបភាព ឬ វីដេអូប្រូម៉ូសិន -->
                             <div>
                                 <label for="promoMediaInput" class="btn btn-sm btn-outline-warning py-1 px-2 fw-bold" style="font-size: 11px; cursor: pointer;">
                                     <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
@@ -112,7 +119,6 @@
                             </div>
                         </div>
                         
-                        <!-- Carousel Slider ឬ Video Container ពេញអេក្រង់ -->
                         <div id="promoContainer" class="shadow rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center flex-grow-1">
                             <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="3500">
                                 <div class="carousel-inner h-100" id="promoCarouselInner">
@@ -130,7 +136,7 @@
                     </div>
                 </div>
 
-                <!-- បើមានទំនិញ បង្ហាញជាតาราง List របស់ទំនិញធម្មតា -->
+                <!-- បើមានទំនិញ បង្ហាញជាตาราง List -->
                 <div id="itemsTableView" class="display-content-area" style="display: none;">
                     <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                         <thead>
@@ -149,7 +155,7 @@
             </div>
         </div>
 
-        <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់សរុប និងស្ថានភាពបង់ប្រាក់ -->
+        <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងប្រអប់បង្ហាញរូបភាពទំនិញពី Catalog (Background ស) -->
         <div class="col-lg-4 d-flex flex-column gap-3">
             <div class="card card-custom p-4">
                 <h6 class="text-muted mb-3 fw-bold" style="font-size: 13px;">សរុបការទូទាត់ (Payment Summary)</h6>
@@ -175,11 +181,15 @@
                 </div>
             </div>
 
-            <div class="card card-custom p-4 flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
-                <div class="text-muted mb-2" style="font-size: 2.5rem;">
-                    <i class="bi bi-credit-card-2-front"></i>
+            <!-- 🛒 ប្រអប់ខាងក្រោម Grand Total (Background ស) សម្រាប់ទាញយករូបភាពពី Catalog មកបង្ហាញ -->
+            <div class="card card-white-custom p-3 flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center shadow-sm rounded-4">
+                <div id="catalogDisplayArea" class="w-100 d-flex flex-column align-items-center justify-content-center">
+                    <div class="text-muted mb-2" style="font-size: 3rem;">
+                        <i class="bi bi-basket3"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1" id="catalogItemName">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                    <p class="text-muted small m-0" id="catalogItemDesc">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                 </div>
-                <p class="text-muted m-0" id="paymentStatusText">កំពុងរង់ចាំការទូទាត់ប្រាក់... | Waiting for payment...</p>
             </div>
         </div>
     </div>
@@ -192,7 +202,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script សម្រាប់ Sync ទិន្នន័យ និង Upload File រូបភាព/វីដេអូ -->
+    <!-- Script សម្រាប់ Sync ទិន្នន័យ និងទាញรูបភាព Catalog -->
     <script>
         const channel = new BroadcastChannel('pos_customer_display_channel');
 
@@ -203,7 +213,6 @@
             }
         };
 
-        // មុខងារសម្រាប់ Upload រូបភាព ឬ វីដេអូ មកបង្ហាញពេញអេក្រង់ពេលទំនេរ
         function handlePromoMediaUpload(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -213,21 +222,13 @@
 
             fileReader.onload = function(e) {
                 let fileUrl = e.target.result;
-                promoContainer.innerHTML = ''; // សម្អាតរបស់ចាស់
-
+                promoContainer.innerHTML = '';
                 if (file.type.startsWith('video/')) {
-                    // បើជាវីដេអូ ពង្រីកពេញអេក្រង់
-                    promoContainer.innerHTML = `
-                        <video src="${fileUrl}" class="promo-media-element" autoplay muted loop controls></video>
-                    `;
+                    promoContainer.innerHTML = `<video src="${fileUrl}" class="promo-media-element" autoplay muted loop controls></video>`;
                 } else {
-                    // បើជារូបភាព ពង្រីកពេញអេក្រង់
-                    promoContainer.innerHTML = `
-                        <img src="${fileUrl}" class="promo-media-element" alt="Uploaded Promo">
-                    `;
+                    promoContainer.innerHTML = `<img src="${fileUrl}" class="promo-media-element" alt="Uploaded Promo">`;
                 }
             };
-
             fileReader.readAsDataURL(file);
         }
 
@@ -240,6 +241,9 @@
             
             let subTotalDisplay = document.getElementById('subTotalDisplay');
             let grandTotalDisplay = document.getElementById('grandTotalDisplay');
+
+            // องค์ประกอบសម្រាប់បង្ហាញរូបភាព Catalog ខាងស្តាំក្រោម Grand Total
+            let catalogArea = document.getElementById('catalogDisplayArea');
 
             tbody.innerHTML = '';
             let grandTotal = 0;
@@ -271,7 +275,18 @@
                 subTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
-                document.getElementById('paymentStatusText').innerText = "សូមត្រួតពិនិត្យបញ្ជីទំនិញ និងទឹកប្រាក់";
+
+                // 🖼️ ទាញយកទំនិញចុងក្រោយបង្អស់ពី List មកបង្ហាញរូបភាពនៅប្រអប់ខាងស្តាំ (Background ស)
+                let latestItem = items[items.length - 1];
+                let itemImage = latestItem.image || 'https://via.placeholder.com/300x200/e9ecef/495057?text=No+Image';
+                
+                catalogArea.innerHTML = `
+                    <div class="w-100 text-center">
+                        <img src="${itemImage}" class="rounded-3 mb-2 shadow-sm" style="width: 100%; height: 160px; object-fit: cover;" alt="${latestItem.item_name}">
+                        <h6 class="fw-bold text-dark mb-1">${latestItem.item_name}</h6>
+                        <span class="text-danger fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</span>
+                    </div>
+                `;
 
             } else {
                 emptyView.style.display = 'flex';
@@ -280,7 +295,15 @@
                 subTotalDisplay.innerText = `$0.00`;
                 grandTotalDisplay.innerText = `$0.00`;
                 totalQtyBadge.innerText = `៛ 0`;
-                document.getElementById('paymentStatusText').innerText = "កំពុងរង់ចាំការទូទាត់ប្រាក់...";
+
+                // ពេលអត់មានទំនិញ បង្ហាញភាពដើមវិញ
+                catalogArea.innerHTML = `
+                    <div class="text-muted mb-2" style="font-size: 3rem;">
+                        <i class="bi bi-basket3"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                    <p class="text-muted small m-0">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                `;
             }
         }
     </script>
