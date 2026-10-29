@@ -2446,6 +2446,9 @@
             let priceType = priceTypeSelect ? priceTypeSelect.value : 'retail';
             let unitPrice = priceType === 'wholesale' ? (parseFloat(found.wholesale_price) || 0) : (parseFloat(found.retail_price) || 0);
 
+            // 🖼️ យក Link រូបភាពពី Master Items / Catalog មកជាមួយយ៉ាងត្រឹមត្រូវ ១០០%
+            let itemImage = found.image_url ? found.image_url : '';
+
             let existingIndex = currentCart.findIndex(i => i.item_id == found.id && i.price_type === priceType);
             if (existingIndex > -1) {
                 if (currentCart[existingIndex].quantity + 1 > found.stock_quantity) {
@@ -2465,7 +2468,8 @@
                     unit: found.unit || 'ដុំ',
                     quantity: 1,
                     unit_price: unitPrice,
-                    price_type: priceType
+                    price_type: priceType,
+                    image: itemImage // 👈 រូបភាពទំនិញត្រូវបានផ្ញើទៅជាមួយទីនេះ
                 });
             }
             renderCartTable();
@@ -2533,7 +2537,7 @@
                 totalLabel.innerHTML = `សរុប: <span class="text-success">$${grandTotal.toFixed(2)}</span> / <span class="text-primary">${formattedRiel}រៀល</span>`;
             }
 
-            // 🛠️ ធ្វើការ Sync ទិន្នន័យទៅកាន់អេក្រង់ក្រោយ (Customer Display) ភ្លាមៗនៅទីនេះ
+            // 🛠️ ធ្វើការ Sync ទិន្នន័យ (រួមទាំងរូបភាព) ទៅកាន់អេក្រង់ក្រោយ (Customer Display) ភ្លាមៗ
             syncCustomerDisplay();
         }
 
@@ -2626,7 +2630,8 @@
                     unit: foundMaster.unit || 'ដុំ',
                     quantity: qty,
                     unit_price: price,
-                    price_type: priceType
+                    price_type: priceType,
+                    image: foundMaster.image_url || ''
                 };
             }
             renderCartTable();
