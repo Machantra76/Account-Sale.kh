@@ -267,6 +267,22 @@ async function processOrderSubmission(table_info, items, res) {
             await client.query('ROLLBACK');
             return res.status(400).json({ success: false, error: 'គ្មានទំនិញក្នុង Order ទេ!' });
         }
+        // ពិនិត្យស្តុកមុនពេលអនុញ្ញាតឱ្យកុម្ម៉ង់
+        for (let item of items) {
+            if (item.item_id) {
+                let stockCheck = await client.query('SELECT stock_quantity, item_name FROM master_items WHERE id = $1', [item.item_id]);
+                if (stockCheck.rows.length > 0) {
+                    let currentStock = stockCheck.rows[0].stock_quantity;
+                    if (currentStock < item.quantity) {
+                        await client.query('ROLLBACK');
+                        return res.status(400).json({ 
+                            success: false, 
+                            error: `ទំនិញ "${stockCheck.rows[0].item_name}" គឺអស់ស្តុកហើយ (សល់ក្នុងឃ្លាំង: ${currentStock})!` 
+                        });
+                    }
+                }
+            }
+        }
 
         const tableInfo = table_info ? table_info.trim() : 'ទូទៅ';
         const qrOrderId = 'QRO-' + Date.now();
