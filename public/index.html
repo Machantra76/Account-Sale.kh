@@ -1276,6 +1276,8 @@
                         });
 
                         renderCartTable();
+                        // 🛠️ បន្ថែមត្រង់នេះ៖ បញ្ជាឱ្យព្រិន្ទសន្លឹក Kitchen Ticket ភ្លាមៗស្វ័យប្រវត្តិ!
+                printKitchenTicket(acceptedOrder.table_info, acceptedOrder.items);
                     }
 
                     alert("✅ បានទទួលយកការកុម្ម៉ង់រួចរាល់! ទិន្នន័យត្រូវបានបញ្ចូលទៅក្នុងវិក្កយបត្រតុ។");
@@ -1308,6 +1310,56 @@
                 console.error("Error rejecting QR order:", err);
             }
         }
+        // មុខងារព្រិន្ទសន្លឹកកុម្ម៉ង់ផ្ញើទៅកាន់ផ្ទះបាយ (Kitchen Ticket)
+function printKitchenTicket(tableInfo, items) {
+    let printWindow = window.open('', '_blank', 'height=600,width=400');
+    if (!printWindow || !printWindow.document) {
+        console.warn("Popups blocked! មិនអាចបើកផ្ទាំងព្រិន្ទទៅចុងភៅបានទេ។");
+        return;
+    }
+
+    printWindow.document.write('<html><head><title>Kitchen Ticket</title>');
+    printWindow.document.write(`
+        <style>
+            @media print {
+                @page { size: 80mm auto; margin: 0; }
+                body { width: 72mm; margin: 4mm; color: #000; }
+            }
+            body { font-family: 'Kantumruy Pro', sans-serif; padding: 5px; color: #000; font-size: 13px; }
+            h2, h3 { text-align: center; margin: 3px 0; }
+            hr { border-top: 1px dashed #000; margin: 8px 0; }
+            table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+            th, td { padding: 5px 2px; border-bottom: 1px solid #000; text-align: left; }
+            th { font-size: 12px; }
+            td { font-size: 14px; font-weight: bold; }
+            .text-end { text-align: right; }
+        </style>
+    `);
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h2>🔥 កុម្ម៉ង់សម្រាប់ចុងភៅ</h2>');
+    printWindow.document.write(`<h3>តុ/បន្ទប់: <b>${tableInfo}</b></h3>`);
+    printWindow.document.write(`<p style="text-align:center; margin: 2px 0;"><small>កាលបរិច្ឆេទ: ${new Date().toLocaleString()}</small></p><hr>`);
+    printWindow.document.write('<table>');
+    printWindow.document.write('<tr><th>មុខទំនិញ (Item)</th><th class="text-end">ចំនួន (Qty)</th></tr>');
+    
+    items.forEach(i => {
+        printWindow.document.write(`<tr>
+            <td><b>${i.item_name}</b> <br><small>(${i.category || 'ទូទៅ'})</small></td>
+            <td class="text-end" style="font-size: 16px;">${i.quantity} ${i.unit || 'ដុំ'}</td>
+        </tr>`);
+    });
+    
+    printWindow.document.write('</table>');
+    printWindow.document.write('<p style="margin-top: 20px; text-align: center; font-size: 11px;"><small>-- សូមរៀបចំជូនភ្ញៀវ --</small></p>');
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 400);
+}
 
         // មុខងារបើកផ្ទាំង QR Code សម្រាប់តុដែលបានជ្រើសរើស
         function openTableQRCodeModal() {
