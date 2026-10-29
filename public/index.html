@@ -2438,13 +2438,16 @@
             });
         }
 
-        function addGridItemToCart(itemId) {
+       function addGridItemToCart(itemId) {
             let found = masterItemsList.find(i => i.id == itemId);
             if (!found) return;
 
             let priceTypeSelect = document.getElementById(`priceType_${itemId}`);
             let priceType = priceTypeSelect ? priceTypeSelect.value : 'retail';
             let unitPrice = priceType === 'wholesale' ? (parseFloat(found.wholesale_price) || 0) : (parseFloat(found.retail_price) || 0);
+
+            // 🖼️ យក Link រូបភាពពី Master Items / Catalog មកជាមួយ
+            let itemImage = found.image_url ? found.image_url : '';
 
             let existingIndex = currentCart.findIndex(i => i.item_id == found.id && i.price_type === priceType);
             if (existingIndex > -1) {
@@ -2465,10 +2468,12 @@
                     unit: found.unit || 'ដុំ',
                     quantity: 1,
                     unit_price: unitPrice,
-                    price_type: priceType
+                    price_type: priceType,
+                    image: itemImage // 👈 បន្ថែម property image នៅទីនេះ
                 });
             }
             renderCartTable();
+        }
         }
 
         function onRestockCategoryChanged() {
