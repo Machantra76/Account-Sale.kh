@@ -248,6 +248,69 @@ app.delete('/api/users/:id', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+// បញ្ជីរក្សាទុក QR Orders
+let qrOrdersDatabase = [];
+
+// 1. API សម្រាប់ភ្ញៀវផ្ញើការកុម្ម៉ង់តាម QR Code
+app.post('/api/accounting/qr-orders', (req, res) => {
+    try {
+        let { table_info, items } = req.body;
+        if (!table_info || !items || items.length === 0) {
+            return res.status(400).json({ success: false, error: 'ទិន្នន័យកុម្ម៉ង់មិនត្រឹមត្រូវ' });
+        }
+
+        let newOrder = {
+            id: 'QRO-' + Date.now(),
+            table_info: table_info,
+            items: items,
+            status: 'PENDING', // ស្ថានភាពដំបូង: Pending (រង់ចាំអ្នកលក់ផ្ទៀងផ្ទាត់)
+            created_at: new Date().toISOString()
+        };
+
+        qrOrdersDatabase.push(newOrder);
+        res.json({ success: true, message: 'បញ្ជូនការកុម្ម៉ង់បានរៀបរយ', data: newOrder });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 2. API សម្រាប់ប្រព័ន្ធ POS ទាញយកកុម្ម៉ង់ដែលកំពុង Pending
+app.get('/api/accounting/qr-orders/pending', (req, res) => {
+    let pendingOrders = qrOrdersDatabase.filter(o => o.status === 'PENDING');
+    res.json({ success: true, data: pendingOrders });
+});
+
+// 3. API សម្រាប់អ្នកលក់ចុច "ទទួលយកការកុម្ម៉ង់ (Accept)" 
+app.post('/api/accounting/qr-orders/:id/accept', (req, res) => {
+    let orderId = req.params.id;
+    let order = qrOrdersDatabase.find(o => o.id === orderId);
+
+    if (!order) {
+        return res.status(404).json({ success: false, error: 'រកមិនឃើញការកុម្ម៉ង់នេះទេ' });
+    }
+
+    if (order.status === 'ACCEPTED') {
+        return res.status(400).json({ success: false, error: 'ការកុម្ម៉ង់នេះត្រូវបានទទួលទួលយករួចហើយ' });
+    }
+
+    // ប្តូរស្ថានភាពទៅជា ACCEPTED
+    order.status = 'ACCEPTED';
+
+    res.json({ success: true, message: 'បានទទួលយកការកុម្ម៉ង់ជោគជ័យ', data: order });
+});
+
+// 4. API សម្រាប់បដិសេធ ឬបោះបង់ការកុម្ម៉ង់ (Reject)
+app.post('/api/accounting/qr-orders/:id/reject', (req, res) => {
+    let orderId = req.params.id;
+    let order = qrOrdersDatabase.find(o => o.id === orderId);
+
+    if (!order) {
+        return res.status(404).json({ success: false, error: 'រកមិនឃើញការកុម្ម៉ង់នេះទេ' });
+    }
+
+    order.status = 'REJECTED';
+    res.json({ success: true, message: 'បានបដិសេធការកុម្ម៉ង់រៀបរយ' });
+});
 
 // INVOICES API
 app.get('/api/accounting/invoices', async (req, res) => {
