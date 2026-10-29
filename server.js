@@ -190,6 +190,117 @@ app.post('/api/accounting/tables', async (req, res) => {
         res.status(400).json({ success: false, error: err.message });
     }
 });
+// CUSTOMER QR ORDER API - សម្រាប់ទទួល Order ពីទូរសព្ទភ្ញៀវ (ស្វ័យប្រវត្តិបញ្ចូលក្នុង Invoice តែមួយបើនៅតុជាមួយគ្នា)
+app.post('/api/customer-orders', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const { table_info, items } = req.body;
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ success: false, error: 'គ្មានទំនិញក្នុង Order ទេ!' });
+        }
+
+        const tableInfo = table_info || 'ទូទៅ';
+
+        // ១. ឆែកមើលថាតើតុនេះ មាន Invoice ដែលកំពុងបើកស្រាប់ (Open Invoice) ហើយឬនៅ?
+        // (យើងអាចឆែកមើល Invoice ណាមួយដែលមាន table_info ដូចគ្នា និងមិនទាន់បានបង់ប្រាក់ ឬចុងក្រោយគេ)
+        let existingInvoiceRes = await client.query(
+            `SELECT * FROM invoices WHERE table_info = $1 ORDER BY date DESC LIMIT 1`,
+            [tableInfo]
+        );
+
+        let invoiceId;
+        let finalItems = [];
+
+        if (existingInvoiceRes.rows.length > 0) {
+            // បើមាន Invoice របស់តុហ្នឹងរួចហើយ យក ID ចាស់មកប្រើ និងយក items ចាស់មកបូកបញ្ចូលគ្នា
+            let oldInvoice = existingInvoiceRes.rows.length > 0 ? existingInvoiceRes.rows[0] : null;
+            
+            // តាមដាន JSONB items ពី Database
+            let oldItems = typeof oldInvoice.items === 'string' ? JSON.parse(oldInvoice.items) : (oldInvoice.items || []);
+            
+            invoiceId = oldInvoice.id;
+            finalItems = [...oldItems];
+
+            // បន្ថែម ឬបុកបញ្ចូលទំនិញថ្មីចូល
+            items.forEach(newItem => {
+                let existingItemIndex = finalItems.findIndex(i => i.item_name === newItem.item_name && i.unit_price == newItem.unit_price);
+                if (existingItemIndex > -1) {
+                    finalItems[existingItemIndex].quantity = parseInt(finalItems[existingItemIndex].quantity) + (parseInt(newItem.quantity) || 1);
+                } else {
+                    finalItems.push({
+                        item_id: newItem.item_id || null,
+                        category: newItem.category || 'General',
+                        item_name: newItem.item_name,
+                        unit: newItem.unit || 'ដុំ',
+                        quantity: parseInt(newItem.quantity) || 1,
+                        unit_price: parseFloat(newItem.unit_price) || 0
+                    });
+                }
+            });
+
+        } else {
+            // បើគ្មាន Invoice ទេ (ភ្ញៀវកុម្ម៉ង់លើកដំបូង) បង្កើត ID ថ្មី
+            invoiceId = 'INV-QR-' + Date.now();
+            finalItems = items.map(i => ({
+                item_id: i.item_id || null,
+                category: i.category || 'General',
+                item_name: i.item_name,
+                unit: i.unit || 'ដុំ',
+                quantity: parseInt(i.quantity) || 1,
+                unit_price: parseFloat(i.unit_price) || 0
+            }));
+        }
+
+        // ២. រក្សាទុក ឬ Update ចូលទៅក្នុងตาราง invoices
+        await client.query(
+            'INSERT INTO invoices (id, date, table_info, items) VALUES ($1, NOW(), $2, $3) ON CONFLICT (id) DO UPDATE SET items = $3, table_info = $2',
+            [invoiceId, tableInfo, JSON.stringify(finalItems)]
+        );
+
+        // ៣. កត់ត្រាចូល transactions (ជាប្រភេទ INCOME) និងកាត់ស្តុកស្វ័យប្រវត្តិសម្រាប់តែទំនិញថ្មីដែលទើបកុម្ម៉ង់
+        for (let item of items) {
+            let qty = parseInt(item.quantity) || 1;
+            let price = parseFloat(item.unit_price) || 0;
+            let totalAmount = qty * price;
+
+            await client.query(
+                `INSERT INTO transactions (type, item_id, category, item_name, quantity, unit_price, amount)
+                 VALUES ('INCOME', $1, $2, $3, $4, $5, $6)`,
+                [item.item_id || null, item.category || 'General', item.item_name, qty, price, totalAmount]
+            );
+
+            if (item.item_id) {
+                await client.query(
+                    `UPDATE master_items SET stock_quantity = stock_quantity - $1 WHERE id = $2`,
+                    [qty, item.item_id]
+                );
+            }
+        }
+
+        // ៤. កត់ត្រា Activity Logs
+        await client.query(
+            'INSERT INTO activity_logs (username, role, action) VALUES ($1, $2, $3)',
+            ['Customer-QR', 'CUSTOMER', `ភ្ញៀវកុម្ម៉ង់បន្ថែមតាម QR Code (តុ: ${tableInfo} - វិក្កយបត្រ: ${invoiceId})`]
+        );
+
+        await client.query('COMMIT');
+        res.status(201).json({ 
+            success: true, 
+            message: 'Order updated/placed successfully via QR Code!', 
+            invoice_id: invoiceId 
+        });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error("Error processing customer QR order:", err);
+        res.status(500).json({ success: false, error: err.message });
+    } finally {
+        client.release();
+    }
+});
 
 // AUTH & USERS API
 app.post('/api/login', async (req, res) => {
