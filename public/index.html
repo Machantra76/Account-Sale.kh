@@ -1231,6 +1231,31 @@ function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
     // Store in localStorage as fallback
     localStorage.setItem('pos_customer_display_data', JSON.stringify(payload));
 }
+        function syncToCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
+    if (customerWindow && !customerWindow.closed) {
+        let subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+        let discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
+        let tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
+        let grandTotal = Math.max(0, subtotal - discount + tax);
+        let tableName = document.getElementById('tableOrVipSelect')?.value || '';
+
+        let payload = {
+            type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
+            cart: currentCart,
+            tableName: tableName,
+            subtotal: subtotal,
+            discount: discount,
+            tax: tax,
+            grandTotal: grandTotal,
+            rate: 4000, // តាមតម្លៃរៀបចំក្នុង POS របស់អ្នក ($1 = 4000រៀល ដូចក្នុងរូបទី២)
+            isKhqrActive: isKhqrActive,
+            qrImageSrc: qrImageSrc
+        };
+
+        // ส่งទិន្នន័យទៅកាន់អេក្រង់អតិថិជនភ្លាមៗ
+        customerWindow.postMessage(payload, '*');
+    }
+}
 
         // មុខងារ Auto-Check QR Orders រៀងរាល់ ៣ វិនាទី
         function startAutoCheckQROrders() {
