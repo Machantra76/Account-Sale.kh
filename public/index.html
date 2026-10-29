@@ -584,6 +584,34 @@
         </div>
     </div>
 
+    <!-- QR ORDERS NOTIFICATION MODAL (ORDER CONFIRMATION STATUS) -->
+    <div class="modal fade" id="qrIncomingOrdersModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold fs-6">
+                        🚨 មានការកុម្ម៉ង់ថ្មី/បន្ថែមទំនិញតាម QR Code! (Pending Approval)
+                    </h5>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">
+                        ⚠ សូមពិនិត្យផ្ទៀងផ្ទាត់ទំនិញខាងក្រោម រួចចុច <b>"ទទួលយក (Accept)"</b> ដើម្បីបញ្ជូនទៅរៀបចំ និងបញ្ចូលក្នុងវិក្កយបត្រ។
+                    </p>
+                    <div id="incomingOrdersContainer" style="max-height: 380px; overflow-y: auto;">
+                        <!-- កន្លែងបង្ហាញបញ្ជី Pending Orders -->
+                    </div>
+                </div>
+                <div class="modal-footer bg-light justify-content-between">
+                    <span class="text-danger fw-bold small">Status: 🟡 រង់ចាំការផ្ទៀងផ្ទាត់ (Pending)</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeQrModal()">បិទជាបណ្តោះអាសន្ន</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO FOR ALERT -->
+    <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
     <!-- ACTIVITY LOG & SHIFT SUMMARY MODAL -->
     <div class="modal fade" id="activityLogModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -1115,6 +1143,7 @@
         let payableReportModal;
         let payDebtModal;
         let tableQRCodeModal;
+        let qrIncomingOrdersModal;
 
         document.addEventListener("DOMContentLoaded", () => {
             editMasterModal = new bootstrap.Modal(document.getElementById('editMasterModal'));
@@ -1128,8 +1157,157 @@
             payableReportModal = new bootstrap.Modal(document.getElementById('payableReportModal'));
             payDebtModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
             tableQRCodeModal = new bootstrap.Modal(document.getElementById('tableQRCodeModal'));
+            qrIncomingOrdersModal = new bootstrap.Modal(document.getElementById('qrIncomingOrdersModal'));
+            
             checkLoginState();
+            startAutoCheckQROrders();
         });
+
+        // មុខងារ Auto-Check QR Orders រៀងរាល់ ៣ វិនាទី
+        function startAutoCheckQROrders() {
+            setInterval(async () => {
+                let loggedUserStr = sessionStorage.getItem("loggedUserObj");
+                if (!loggedUserStr) return; // បើមិនទាន់ Login មិនបាច់ឆែកទេ
+
+                try {
+                    let res = await fetch(`${API_URL}/qr-orders/pending`);
+                    let result = await res.json();
+
+                    if (result.success && result.data && result.data.length > 0) {
+                        let sound = document.getElementById('alertSound');
+                        if (sound) {
+                            sound.play().catch(e => console.log("Audio play blocked:", e));
+                        }
+                        renderIncomingQROrders(result.data);
+                    }
+                } catch (err) {
+                    console.error("Error auto-checking QR orders:", err);
+                }
+            }, 3000);
+        }
+
+        function renderIncomingQROrders(pendingOrders) {
+            let container = document.getElementById('incomingOrdersContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            pendingOrders.forEach(order => {
+                let div = document.createElement('div');
+                div.className = "p-3 mb-3 bg-white rounded-3 border border-danger shadow-sm position-relative";
+                
+                let grandTotal = 0;
+                let itemsHtml = '';
+                
+                order.items.forEach(i => {
+                    let itemTotal = (i.quantity * i.unit_price);
+                    grandTotal += itemTotal;
+                    itemsHtml += `
+                        <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                            <span><b>${i.item_name}</b> <small class="text-muted">(${i.category || 'ទូទៅ'})</small></span>
+                            <span>${i.quantity} ${i.unit || 'ដុំ'} x $${parseFloat(i.unit_price).toFixed(2)} = <b class="text-success">$${itemTotal.toFixed(2)}</b></span>
+                        </li>`;
+                });
+
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <h6 class="fw-bold text-primary m-0" style="font-size: 16px;">🏷 តុ/បន្ទប់: ${order.table_info}</h6>
+                            <small class="text-muted">កាលបរិច្ឆេទ: ${new Date(order.created_at).toLocaleTimeString()}</small>
+                        </div>
+                        <span class="badge bg-warning text-dark px-3 py-2">🟡 PENDING (រង់ចាំអ្នកលក់)</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3" style="font-size: 13px;">
+                        ${itemsHtml}
+                    </ul>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 bg-light p-2 rounded-3">
+                        <h6 class="fw-bold m-0 text-dark">សរុប: <span class="text-success">$${grandTotal.toFixed(2)}</span></h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-danger btn-sm fw-bold px-3" onclick="rejectQrOrder('${order.id}')">
+                                ❌ បដិសេធ (Reject)
+                            </button>
+                            <button class="btn btn-success btn-sm fw-bold px-4" onclick="acceptQrOrder('${order.id}')">
+                                ✅ ទទួលយក (Accept Order)
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            qrIncomingOrdersModal.show();
+        }
+
+        function closeQrModal() {
+            qrIncomingOrdersModal.hide();
+        }
+
+        async function acceptQrOrder(orderId) {
+            try {
+                let res = await fetch(`${API_URL}/qr-orders/${orderId}/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                let result = await res.json();
+
+                if (res.ok && result.success) {
+                    let acceptedOrder = result.data;
+                    
+                    if (acceptedOrder && acceptedOrder.items) {
+                        let tableSelect = document.getElementById('tableOrVipSelect');
+                        if (tableSelect) tableSelect.value = acceptedOrder.table_info;
+
+                        acceptedOrder.items.forEach(newItem => {
+                            let existingIndex = currentCart.findIndex(c => c.item_name === newItem.item_name);
+                            if (existingIndex > -1) {
+                                currentCart[existingIndex].quantity += newItem.quantity;
+                            } else {
+                                currentCart.push({
+                                    item_id: newItem.item_id,
+                                    category: newItem.category || 'ទូទៅ',
+                                    item_name: newItem.item_name,
+                                    unit: newItem.unit || 'ដុំ',
+                                    quantity: newItem.quantity,
+                                    unit_price: parseFloat(newItem.unit_price) || 0,
+                                    price_type: 'retail'
+                                });
+                            }
+                        });
+
+                        renderCartTable();
+                    }
+
+                    alert("✅ បានទទួលយកការកុម្ម៉ង់រួចរាល់! ទិន្នន័យត្រូវបានបញ្ចូលទៅក្នុងវិក្កយបត្រតុ។");
+                    closeQrModal();
+                    loadAppData();
+                } else {
+                    alert(`❌ ${result.error || 'កំហុសក្នុងការទទួលយកការកុម្ម៉ង់'}`);
+                }
+            } catch (err) {
+                console.error("Error accepting QR order:", err);
+                alert("❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!");
+            }
+        }
+
+        async function rejectQrOrder(orderId) {
+            if (!confirm("តើអ្នកពិតជាចង់បដិសេធការកុម្ម៉ង់មួយនេះមែនទេ?")) return;
+
+            try {
+                let res = await fetch(`${API_URL}/qr-orders/${orderId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                let result = await res.json();
+
+                if (res.ok && result.success) {
+                    alert("❌ បានបដិសេធការកុម្ម៉ង់នេះរួចរាល់។");
+                    closeQrModal();
+                }
+            } catch (err) {
+                console.error("Error rejecting QR order:", err);
+            }
+        }
 
         // មុខងារបើកផ្ទាំង QR Code សម្រាប់តុដែលបានជ្រើសរើស
         function openTableQRCodeModal() {
