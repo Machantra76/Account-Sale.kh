@@ -268,18 +268,18 @@ async function processOrderSubmission(table_info, items, res) {
             return res.status(400).json({ success: false, error: 'គ្មានទំនិញក្នុង Order ទេ!' });
         }
 
-        const tableInfo = table_info || 'ទូទៅ';
+        const tableInfo = table_info ? table_info.trim() : 'ទូទៅ';
         const qrOrderId = 'QRO-' + Date.now();
 
-        // 1. រក្សាទុកចូល qr_orders ក្នុង Database ជា PENDING (ដើម្បីឱ្យ POS រោទ៍សំឡេង និងលោត Popup)
+        // 1. រក្សាទុកចូល qr_orders ក្នុង Database ជា PENDING
         await client.query(
             'INSERT INTO qr_orders (id, table_info, items, status) VALUES ($1, $2, $3, $4)',
             [qrOrderId, tableInfo, JSON.stringify(items), 'PENDING']
         );
 
-        // 2. ឆែកមើលថាតើតុនេះ មាន Invoice ចាស់ដែលកំពុងបើកស្រាប់ដែរឬទេ? (ឆែកតាមតុផ្ទាល់ មិនខ្វល់ពី ID ថ្មី)
+        // 2. ឆែករក Invoice ចាស់ (ប្រើ LOWER និង TRIM ដើម្បីការពារករណី table_info ផ្ញើមកអក្សរតូច/ធំ ឬមានដកឃ្លាខុសគ្នា)
         let existingInvoiceRes = await client.query(
-            `SELECT * FROM invoices WHERE table_info = $1 ORDER BY date DESC LIMIT 1`,
+            `SELECT * FROM invoices WHERE LOWER(TRIM(table_info)) = LOWER(TRIM($1)) ORDER BY date DESC LIMIT 1`,
             [tableInfo]
         );
 
@@ -287,7 +287,7 @@ async function processOrderSubmission(table_info, items, res) {
         let finalItems = [];
 
         if (existingInvoiceRes.rows.length > 0) {
-            // ប្រសិនបើមាន Invoice របស់តុហ្នឹងរួចហើយ -> យក Invoice ID ចាស់មកប្រើ និងបូកបញ្ចូលទំនិញថ្មីចូល
+            // បើមាន Invoice របស់តុហ្នឹងរួចហើយ -> យកមកបូកបញ្ចូលគ្នា
             let oldInvoice = existingInvoiceRes.rows[0];
             let oldItems = typeof oldInvoice.items === 'string' ? JSON.parse(oldInvoice.items) : (oldInvoice.items || []);
             
@@ -310,7 +310,7 @@ async function processOrderSubmission(table_info, items, res) {
                 }
             });
         } else {
-            // ប្រសិនបើគ្មាន Invoice ទេ -> ទើបបង្កើត Invoice ID ថ្មី
+            // បើគ្មាន Invoice ទេ -> បង្កើត Invoice ID ថ្មី
             invoiceId = 'INV-QR-' + Date.now();
             finalItems = items.map(i => ({
                 item_id: i.item_id || null,
@@ -371,7 +371,7 @@ async function processOrderSubmission(table_info, items, res) {
     }
 }
 
-// Support ទាំងពីរ Endpoints ដើម្បីកុំឱ្យមានបញ្ហាខុសគ្នា
+// Support ទាំងពីរ Endpoints
 app.post('/api/customer-orders', async (req, res) => {
     await processOrderSubmission(req.body.table_info, req.body.items, res);
 });
