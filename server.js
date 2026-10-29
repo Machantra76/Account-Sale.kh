@@ -278,9 +278,12 @@ async function processOrderSubmission(table_info, items, res) {
         );
 
         // 2. ឆែករក Invoice ចាស់ (ប្រើ LOWER និង TRIM ដើម្បីការពារករណី table_info ផ្ញើមកអក្សរតូច/ធំ ឬមានដកឃ្លាខុសគ្នា)
+       // 2. ឆែករក Invoice ចាស់ (យើងដូរមកទាញយក Invoice ចុងក្រោយបង្អស់ដែលបង្កើតឡើងក្នុងថ្ងៃជាមួយគ្នា សម្រាប់តុហ្នឹង)
         let existingInvoiceRes = await client.query(
-            `SELECT * FROM invoices WHERE LOWER(TRIM(table_info)) = LOWER(TRIM($1)) ORDER BY date DESC LIMIT 1`,
-            [tableInfo]
+            `SELECT * FROM invoices 
+             WHERE LOWER(TRIM(table_info)) = LOWER(TRIM($1)) 
+             ORDER BY date DESC LIMIT 1`,
+         [tableInfo]
         );
 
         let invoiceId;
