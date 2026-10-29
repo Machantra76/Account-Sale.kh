@@ -1162,6 +1162,36 @@
             checkLoginState();
             startAutoCheckQROrders();
         });
+        // Initialize Customer Display Broadcast Channel
+const customerDisplayChannel = new BroadcastChannel('pos_customer_display');
+
+// Helper function to sync cart state with customer display
+function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
+    const subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+    const discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
+    const tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
+    const grandTotal = Math.max(0, subtotal - discount + tax);
+    const tableName = document.getElementById('tableOrVipSelect')?.value || '';
+
+    const payload = {
+        type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
+        cart: currentCart,
+        tableName: tableName,
+        subtotal: subtotal,
+        discount: discount,
+        tax: tax,
+        grandTotal: grandTotal,
+        rate: 4100, // Exchange rate
+        isKhqrActive: isKhqrActive,
+        qrImageSrc: qrImageSrc
+    };
+
+    // Broadcast to customer display
+    customerDisplayChannel.postMessage(payload);
+    
+    // Store in localStorage as fallback
+    localStorage.setItem('pos_customer_display_data', JSON.stringify(payload));
+}
 
         // មុខងារ Auto-Check QR Orders រៀងរាល់ ៣ វិនាទី
         function startAutoCheckQROrders() {
@@ -2491,6 +2521,8 @@ function printKitchenTicket(tableInfo, items) {
                 });
             } else {
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">គ្មានទំនិញក្នុងវិក្កយបត្រទេ</td></tr>`;
+                // Sync to Customer Display Screen
+    syncCustomerDisplay();
             }
 
             let exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000;
@@ -2540,6 +2572,12 @@ function printKitchenTicket(tableInfo, items) {
                 itemSelect.value = selectedItemId;
             }
         }
+        function showKhqrPaymentModal(qrImageUrl) {
+    // ... (Your existing payment popup code) ...
+
+    // Notify Customer Display to show KHQR
+    syncCustomerDisplay(true, qrImageUrl);
+}
 
         function onEditCartItemSelected() {
             let itemId = document.getElementById('editCartSelectItem').value;
@@ -2607,6 +2645,9 @@ function printKitchenTicket(tableInfo, items) {
         function clearCurrentCart() {
             currentCart = [];
             renderCartTable();
+            // Clear Customer Display
+    customerDisplayChannel.postMessage({ type: 'CLEAR_DISPLAY' });
+    localStorage.removeItem('pos_customer_display_data');
         }
 
         async function checkoutAndPrintInvoice() {
