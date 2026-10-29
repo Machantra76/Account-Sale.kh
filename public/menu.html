@@ -130,14 +130,20 @@
         let tableParam = "ទូទៅ (Normal)";
         let orderModal;
 
-        document.addEventListener("DOMContentLoaded", () => {
+       document.addEventListener("DOMContentLoaded", () => {
             orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
             
-            // ស្វែងរកលេខតុពី URL parameters ឧទាហរណ៍៖ menu.html?table=Table-1
+            // ស្វែងរកលេខតុពី URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('table')) {
-                tableParam = urlParams.get('table');
+                let t = urlParams.get('table').trim();
+                if (t !== "") {
+                    tableParam = t;
+                }
+            } else {
+                tableParam = "Other"; // ប្រសិនបើអត់មាន URL ដាក់ថា Other ស្វ័យប្រវត្តិ
             }
+
             document.getElementById('tableBadge').innerText = tableParam;
             document.getElementById('tableNameDisplay').innerText = `តុ/បន្ទប់: ${tableParam}`;
 
