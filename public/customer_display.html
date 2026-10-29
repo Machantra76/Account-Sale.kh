@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="km" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Display - POS System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #0b0f19; color: #f3f4f6; overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between select-none">
+
+    <!-- HEADER -->
+    <header class="bg-gray-900/90 border-b border-gray-800 px-8 py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-gray-900 font-bold text-2xl">
+                <i class="fa-solid fa-utensils"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wide text-white">សូមស្វាគមន៍ (WELCOME)</h1>
+                <p class="text-xs text-amber-400">ភោជនីយដ្ឋាន & កាហ្វេដ្ឋាន</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="tableBadge" class="hidden bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-chair text-indigo-400"></i>
+                <span id="displayTableName">តុទី --</span>
+            </div>
+            <div class="bg-gray-800/80 border border-gray-700 text-gray-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>អេក្រង់អតិថិជន (Connected)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden">
+        <!-- LEFT: CART -->
+        <section class="col-span-7 bg-gray-900/60 border border-gray-800 rounded-2xl p-5 flex flex-col shadow-xl">
+            <div class="flex justify-between items-center pb-4 mb-3 border-b border-gray-800">
+                <h2 class="text-lg font-bold text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-amber-400"></i> បញ្ជីមុខម្ហូប (Order Items)
+                </h2>
+                <span id="itemCountBadge" class="text-xs bg-gray-800 border border-gray-700 px-3 py-1 rounded-full text-gray-300">0 មុខ</span>
+            </div>
+
+            <!-- IDLE STATE -->
+            <div id="idleStateContainer" class="flex-1 flex flex-col items-center justify-center text-center p-8">
+                <div class="w-28 h-28 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-400 text-5xl mb-6">
+                    <i class="fa-solid fa-mug-hot"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-200 mb-2">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង</h3>
+                <p class="text-gray-400 text-sm max-w-md">សូមជ្រើសរើសមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់។</p>
+            </div>
+
+            <!-- CART TABLE -->
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto pr-2 hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs font-bold text-gray-400 border-b border-gray-800 uppercase">
+                            <th class="pb-3 pl-2">មុខទំនិញ</th>
+                            <th class="pb-3 text-center">ចំនួន</th>
+                            <th class="pb-3 text-right">តម្លៃរាយ</th>
+                            <th class="pb-3 text-right pr-2">សរុប</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTableBody" class="divide-y divide-gray-800/60 text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RIGHT: SUMMARY & PAYMENT -->
+        <section class="col-span-5 flex flex-col justify-between gap-6">
+            <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between flex-1">
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase mb-4 pb-2 border-b border-gray-800">សរុបការទូទាត់</h2>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between text-gray-400"><span>សរុបរង:</span><span id="displaySubtotal">$0.00</span></div>
+                        <div class="flex justify-between text-gray-400"><span>បញ្ចុះតម្លៃ:</span><span id="displayDiscount">-$0.00</span></div>
+                        <div class="flex justify-between text-gray-400"><span>ពន្ធ:</span><span id="displayTax">$0.00</span></div>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-800">
+                    <div class="bg-gradient-to-r from-emerald-950/40 via-gray-900 to-gray-900 border border-emerald-500/30 rounded-2xl p-5">
+                        <span class="text-xs font-bold text-emerald-400 block mb-1">ទឹកប្រាក់ត្រូវទូទាត់សរុប</span>
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-4xl font-extrabold text-white" id="displayTotalUSD">$0.00</span>
+                            <span class="text-lg font-bold text-amber-400" id="displayTotalKHR">៛ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENT BOX -->
+            <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 shadow-xl flex items-center justify-center h-64">
+                <div id="paymentIdleState" class="text-center p-4">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fa-solid fa-credit-card text-xl"></i></div>
+                    <p class="text-sm font-medium text-gray-400">កំពុងរង់ចាំការទូទាត់ប្រាក់...</p>
+                </div>
+                <div id="paymentKhqrState" class="hidden flex flex-col items-center justify-center">
+                    <div class="bg-white p-3 rounded-xl shadow-2xl border-2 border-red-500 relative mb-2">
+                        <img id="displayKhqrImg" src="" alt="KHQR" class="w-36 h-36 object-contain rounded">
+                    </div>
+                    <p class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-qrcode"></i> សូមស្កែនដើម្បីទូទាត់ប្រាក់</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 border-t border-gray-800 px-8 py-3 flex justify-between items-center text-xs text-gray-400">
+        <span>សូមអរគុណសម្រាប់ការគាំទ្រហាងរបស់យើង!</span>
+        <span id="displayClock">00:00:00</span>
+    </footer>
+
+    <script>
+        let exchangeRate = 4100;
+
+        setInterval(() => {
+            document.getElementById('displayClock').innerText = new Date().toLocaleTimeString('km-KH');
+        }, 1000);
+
+        // ទទួលសារបញ្ជាផ្ទាល់ពីផ្ទាំង POS តាមរយៈ window.postMessage
+        window.addEventListener('message', (event) => {
+            if (event.data) {
+                handlePosUpdate(event.data);
+            }
+        });
+
+        function handlePosUpdate(data) {
+            if (data.rate) exchangeRate = parseFloat(data.rate) || 4100;
+            if (data.type === 'UPDATE_CART') renderCartDisplay(data);
+            if (data.type === 'SHOW_KHQR') showKhqrPayment(data);
+            if (data.type === 'CLEAR_DISPLAY') resetDisplay();
+        }
+
+        function renderCartDisplay(data) {
+            const items = data.cart || [];
+            const tableName = data.tableName || '';
+            const subtotal = data.subtotal || 0;
+            const discount = data.discount || 0;
+            const tax = data.tax || 0;
+            const grandTotal = data.grandTotal || 0;
+
+            const tableBadge = document.getElementById('tableBadge');
+            if (tableName && tableName !== 'General' && tableName !== 'Other') {
+                document.getElementById('displayTableName').innerText = tableName;
+                tableBadge.classList.remove('hidden');
+            } else {
+                tableBadge.classList.add('hidden');
+            }
+
+            if (items.length === 0) {
+                resetDisplay();
+                return;
+            }
+
+            document.getElementById('idleStateContainer').classList.add('hidden');
+            document.getElementById('cartItemsContainer').classList.remove('hidden');
+            document.getElementById('itemCountBadge').innerText = `${items.length} មុខ`;
+
+            let tbody = document.getElementById('cartTableBody');
+            tbody.innerHTML = '';
+            items.forEach(item => {
+                let itemTotal = (item.quantity * item.unit_price) || 0;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-800/40">
+                        <td class="py-3 pl-2"><div class="font-bold text-gray-200">${item.item_name}</div></td>
+                        <td class="py-3 text-center"><span class="bg-amber-500/10 text-amber-300 px-2.5 py-1 rounded-lg font-bold">${item.quantity} ${item.unit || ''}</span></td>
+                        <td class="py-3 text-right text-gray-300">$${parseFloat(item.unit_price).toFixed(2)}</td>
+                        <td class="py-3 text-right pr-2 font-bold text-emerald-400">$${itemTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('displaySubtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('displayDiscount').innerText = `-$${discount.toFixed(2)}`;
+            document.getElementById('displayTax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('displayTotalUSD').innerText = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('displayTotalKHR').innerText = `៛ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
+
+            if (!data.isKhqrActive) {
+                document.getElementById('paymentKhqrState').classList.add('hidden');
+                document.getElementById('paymentIdleState').classList.remove('hidden');
+            }
+        }
+
+        function showKhqrPayment(data) {
+            if (data.qrImageSrc) {
+                document.getElementById('displayKhqrImg').src = data.qrImageSrc;
+                document.getElementById('paymentIdleState').classList.add('hidden');
+                document.getElementById('paymentKhqrState').classList.remove('hidden');
+            }
+        }
+
+        function resetDisplay() {
+            document.getElementById('idleStateContainer').classList.remove('hidden');
+            document.getElementById('cartItemsContainer').classList.add('hidden');
+            document.getElementById('paymentKhqrState').classList.add('hidden');
+            document.getElementById('paymentIdleState').classList.remove('hidden');
+            document.getElementById('tableBadge').classList.add('hidden');
+            document.getElementById('cartTableBody').innerHTML = '';
+            document.getElementById('displayTotalUSD').innerText = '$0.00';
+            document.getElementById('displayTotalKHR').innerText = '៛ 0';
+        }
+    </script>
+</body>
+</html>
