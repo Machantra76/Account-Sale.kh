@@ -202,7 +202,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script សម្រាប់ Sync ទិន្នន័យ និងទាញយករូបភាពទំនិញតាម Catalog -->
+    <!-- Script សម្រាប់ Sync ទិន្នន័យ និងទាញយករូបភាពទំនិញពី Catalog -->
     <script>
         const channel = new BroadcastChannel('pos_customer_display_channel');
 
@@ -241,7 +241,6 @@
             
             let subTotalDisplay = document.getElementById('subTotalDisplay');
             let grandTotalDisplay = document.getElementById('grandTotalDisplay');
-
             let catalogArea = document.getElementById('catalogDisplayArea');
 
             tbody.innerHTML = '';
@@ -275,44 +274,28 @@
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
 
-                // 🛒 ទាញយកទំនិញចុងក្រោយបង្អស់
+                // 🛒 ទាញយកទំនិញចុងក្រោយបង្អស់ដែលបានជ្រើសរើស
                 let latestItem = items[items.length - 1];
 
-                // 🔍 ពិនិត្យមើលរូបភាព៖ យកពី item.image ផ្ទាល់ ឬផ្គូផ្គងតាមឈ្មោះទំនិញ (Catalog Mapping)
-                let itemImage = latestItem.image;
-                
-                if (!itemImage) {
-                    // បើគ្មាន image ផ្ញើមកទេ យើងអាចកំណត់លក្ខខណ្ឌតាមឈ្មោះទំនិញក្នុង Catalog របស់បង
-                    let name = latestItem.item_name.toUpperCase();
-                    if (name.includes('ABC')) {
-                        // ឧទាហរណ៍៖ រូបភាពស្រាបៀរ ABC ដូចក្នុង Catalog របស់បង
-                        itemImage = "https://images.unsplash.com/photo-1608270104343-24392e293026?w=400&auto=format&fit=crop&q=80"; 
-                    } else if (name.includes('COCA') || name.includes('កូកា')) {
-                        itemImage = "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&auto=format&fit=crop&q=80";
-                    } else {
-                        // រូបភាពទូទៅបើរកមិនឃើញឈ្មោះ
-                        itemImage = ""; 
-                    }
-                }
-
-                if (itemImage) {
-                    // បើមានរូបភាព (បង្ហាញរូបភាពទំនិញពី Catalog ពេញស្អាត)
+                // 🖼️ ពិនិត្យមើលរូបភាពដែលបានផ្ញើមកពី POS Catalog
+                if (latestItem.image && latestItem.image.trim() !== "") {
+                    // បើមានរូបភាព Upload ពី Master Items / Catalog បង្ហាញរូបភាពនោះពេញប្រអប់សស្អាត
                     catalogArea.innerHTML = `
                         <div class="w-100 text-center">
-                            <img src="${itemImage}" class="rounded-3 mb-2 shadow-sm" style="width: 100%; height: 170px; object-fit: contain; background: #f8f9fa;" alt="${latestItem.item_name}">
-                            <h5 class="fw-bold text-dark mb-1">${latestItem.item_name}</h5>
+                            <img src="${latestItem.image}" class="rounded-3 mb-2 shadow-sm" style="width: 100%; height: 180px; object-fit: contain; background: #ffffff;" alt="${latestItem.item_name}">
+                            <h4 class="fw-bold text-dark mb-1">${latestItem.item_name}</h4>
                             <span class="text-danger fs-4 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</span>
                             <small class="text-muted d-block">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
                         </div>
                     `;
                 } else {
-                    // បើអត់មានរូបភាពទាំងស្រុង (បង្ហាញជា Icon និងអត្ថបទស្អាតដោយគ្មានคำថា No Image)
+                    // បើគ្មានរូបភាព បង្ហាញជាឈ្មោះ និងតម្លៃយ៉ាងស្អាត
                     catalogArea.innerHTML = `
-                        <div class="w-100 text-center p-2">
-                            <div class="text-warning mb-2" style="font-size: 3rem;">
+                        <div class="w-100 text-center p-3">
+                            <div class="text-warning mb-2" style="font-size: 3.5rem;">
                                 <i class="bi bi-box-seam-fill"></i>
                             </div>
-                            <h4 class="fw-bold text-dark mb-1">${latestItem.item_name}</h4>
+                            <h4 class="fw-bold text-dark mb-2">${latestItem.item_name}</h4>
                             <div class="text-danger fs-3 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</div>
                             <small class="text-muted">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
                         </div>
