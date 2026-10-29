@@ -1162,100 +1162,38 @@
             checkLoginState();
             startAutoCheckQROrders();
         });
-        let customerWindow = null;
 
-// ១. មុខងារបើកអេក្រង់អតិថិជន (អាចដាក់ឱ្យវាបើកស្វ័យប្រវត្តិពេល Login ចូល POS)
-function openCustomerDisplay() {
-    // បើកហ្វាល customer_display.html ក្នុង Window ថ្មីដាច់ដោយឡែក
-    customerWindow = window.open('customer_display.html', 'CustomerDisplay', 'width=1024,height=768');
-}
+        // ==========================================
+        // CUSTOMER DISPLAY BROADCAST CHANNEL SYNC
+        // ==========================================
+        const customerDisplayChannel = new BroadcastChannel('pos_customer_display_channel');
 
-// ២. មុខងារធ្វើសមកាលកម្មទិន្នន័យ (ហៅវាជារៀងរាល់ពេលមានការផ្លាស់ប្តូរ Cart)
-function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
-    // បើអតិថិជនបិទ Window នោះ ព្យាយាមបើកឡើងវិញ ឬមិនធ្វើអ្វីសោះ
-    if (!customerWindow || customerWindow.closed) {
-        // អ្នកអាចបើកវាដោយស្វ័យប្រវត្តិ ឬទុកពេលចុចปุ่มបើក
-    }
+        function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
+            let subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+            let discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
+            let tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
+            let grandTotal = Math.max(0, subtotal - discount + tax);
+            let tableName = document.getElementById('tableOrVipSelect')?.value || '';
 
-    let subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-    let discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
-    let tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
-    let grandTotal = Math.max(0, subtotal - discount + tax);
-    let tableName = document.getElementById('tableOrVipSelect')?.value || '';
+            let payload = {
+                type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
+                items: currentCart, // ត្រូវគ្នានឹង customer_display.html ដែលរង់ចាំ data.items
+                tableName: tableName,
+                subtotal: subtotal,
+                discount: discount,
+                tax: tax,
+                grandTotal: grandTotal,
+                rate: parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000,
+                isKhqrActive: isKhqrActive,
+                qrImageSrc: qrImageSrc
+            };
 
-    let payload = {
-        type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
-        cart: currentCart,
-        tableName: tableName,
-        subtotal: subtotal,
-        discount: discount,
-        tax: tax,
-        grandTotal: grandTotal,
-        rate: 4100,
-        isKhqrActive: isKhqrActive,
-        qrImageSrc: qrImageSrc
-    };
-
-    // ส่งទិន្នន័យឆ្លងទៅកាន់អេក្រង់អតិថិជនដោយផ្ទាល់
-    if (customerWindow && !customerWindow.closed) {
-        customerWindow.postMessage(payload, '*');
-    }
-}
-        // Initialize Customer Display Broadcast Channel
-const customerDisplayChannel = new BroadcastChannel('pos_customer_display');
-
-// Helper function to sync cart state with customer display
-function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
-    const subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-    const discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
-    const tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
-    const grandTotal = Math.max(0, subtotal - discount + tax);
-    const tableName = document.getElementById('tableOrVipSelect')?.value || '';
-
-    const payload = {
-        type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
-        cart: currentCart,
-        tableName: tableName,
-        subtotal: subtotal,
-        discount: discount,
-        tax: tax,
-        grandTotal: grandTotal,
-        rate: 4100, // Exchange rate
-        isKhqrActive: isKhqrActive,
-        qrImageSrc: qrImageSrc
-    };
-
-    // Broadcast to customer display
-    customerDisplayChannel.postMessage(payload);
-    
-    // Store in localStorage as fallback
-    localStorage.setItem('pos_customer_display_data', JSON.stringify(payload));
-}
-        function syncToCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
-    if (customerWindow && !customerWindow.closed) {
-        let subtotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-        let discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
-        let tax = parseFloat(document.getElementById('taxInput')?.value) || 0;
-        let grandTotal = Math.max(0, subtotal - discount + tax);
-        let tableName = document.getElementById('tableOrVipSelect')?.value || '';
-
-        let payload = {
-            type: isKhqrActive ? 'SHOW_KHQR' : 'UPDATE_CART',
-            cart: currentCart,
-            tableName: tableName,
-            subtotal: subtotal,
-            discount: discount,
-            tax: tax,
-            grandTotal: grandTotal,
-            rate: 4000, // តាមតម្លៃរៀបចំក្នុង POS របស់អ្នក ($1 = 4000រៀល ដូចក្នុងរូបទី២)
-            isKhqrActive: isKhqrActive,
-            qrImageSrc: qrImageSrc
-        };
-
-        // ส่งទិន្នន័យទៅកាន់អេក្រង់អតិថិជនភ្លាមៗ
-        customerWindow.postMessage(payload, '*');
-    }
-}
+            // បញ្ជូនទិន្នន័យទៅកាន់អេក្រង់ក្រោយຜ່ານ BroadcastChannel
+            customerDisplayChannel.postMessage(payload);
+            
+            // រក្សាទុកក្នុង localStorage ជា Backup ផងដែរ
+            localStorage.setItem('pos_customer_display_data', JSON.stringify(payload));
+        }
 
         // មុខងារ Auto-Check QR Orders រៀងរាល់ ៣ វិនាទី
         function startAutoCheckQROrders() {
@@ -1371,8 +1309,7 @@ function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
                         });
 
                         renderCartTable();
-                        // 🛠️ បន្ថែមត្រង់នេះ៖ បញ្ជាឱ្យព្រិន្ទសន្លឹក Kitchen Ticket ភ្លាមៗស្វ័យប្រវត្តិ!
-                printKitchenTicket(acceptedOrder.table_info, acceptedOrder.items);
+                        printKitchenTicket(acceptedOrder.table_info, acceptedOrder.items);
                     }
 
                     alert("✅ បានទទួលយកការកុម្ម៉ង់រួចរាល់! ទិន្នន័យត្រូវបានបញ្ចូលទៅក្នុងវិក្កយបត្រតុ។");
@@ -1405,58 +1342,57 @@ function syncCustomerDisplay(isKhqrActive = false, qrImageSrc = null) {
                 console.error("Error rejecting QR order:", err);
             }
         }
-        // មុខងារព្រិន្ទសន្លឹកកុម្ម៉ង់ផ្ញើទៅកាន់ផ្ទះបាយ (Kitchen Ticket)
-function printKitchenTicket(tableInfo, items) {
-    let printWindow = window.open('', '_blank', 'height=600,width=400');
-    if (!printWindow || !printWindow.document) {
-        console.warn("Popups blocked! មិនអាចបើកផ្ទាំងព្រិន្ទទៅចុងភៅបានទេ។");
-        return;
-    }
 
-    printWindow.document.write('<html><head><title>Kitchen Ticket</title>');
-    printWindow.document.write(`
-        <style>
-            @media print {
-                @page { size: 80mm auto; margin: 0; }
-                body { width: 72mm; margin: 4mm; color: #000; }
+        function printKitchenTicket(tableInfo, items) {
+            let printWindow = window.open('', '_blank', 'height=600,width=400');
+            if (!printWindow || !printWindow.document) {
+                console.warn("Popups blocked!");
+                return;
             }
-            body { font-family: 'Kantumruy Pro', sans-serif; padding: 5px; color: #000; font-size: 13px; }
-            h2, h3 { text-align: center; margin: 3px 0; }
-            hr { border-top: 1px dashed #000; margin: 8px 0; }
-            table { width: 100%; margin-top: 10px; border-collapse: collapse; }
-            th, td { padding: 5px 2px; border-bottom: 1px solid #000; text-align: left; }
-            th { font-size: 12px; }
-            td { font-size: 14px; font-weight: bold; }
-            .text-end { text-align: right; }
-        </style>
-    `);
-    printWindow.document.write('</head><body>');
-    printWindow.document.write('<h2>🔥 កុម្ម៉ង់សម្រាប់ចុងភៅ</h2>');
-    printWindow.document.write(`<h3>តុ/បន្ទប់: <b>${tableInfo}</b></h3>`);
-    printWindow.document.write(`<p style="text-align:center; margin: 2px 0;"><small>កាលបរិច្ឆេទ: ${new Date().toLocaleString()}</small></p><hr>`);
-    printWindow.document.write('<table>');
-    printWindow.document.write('<tr><th>មុខទំនិញ (Item)</th><th class="text-end">ចំនួន (Qty)</th></tr>');
-    
-    items.forEach(i => {
-        printWindow.document.write(`<tr>
-            <td><b>${i.item_name}</b> <br><small>(${i.category || 'ទូទៅ'})</small></td>
-            <td class="text-end" style="font-size: 16px;">${i.quantity} ${i.unit || 'ដុំ'}</td>
-        </tr>`);
-    });
-    
-    printWindow.document.write('</table>');
-    printWindow.document.write('<p style="margin-top: 20px; text-align: center; font-size: 11px;"><small>-- សូមរៀបចំជូនភ្ញៀវ --</small></p>');
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
 
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 400);
-}
+            printWindow.document.write('<html><head><title>Kitchen Ticket</title>');
+            printWindow.document.write(`
+                <style>
+                    @media print {
+                        @page { size: 80mm auto; margin: 0; }
+                        body { width: 72mm; margin: 4mm; color: #000; }
+                    }
+                    body { font-family: 'Kantumruy Pro', sans-serif; padding: 5px; color: #000; font-size: 13px; }
+                    h2, h3 { text-align: center; margin: 3px 0; }
+                    hr { border-top: 1px dashed #000; margin: 8px 0; }
+                    table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+                    th, td { padding: 5px 2px; border-bottom: 1px solid #000; text-align: left; }
+                    th { font-size: 12px; }
+                    td { font-size: 14px; font-weight: bold; }
+                    .text-end { text-align: right; }
+                </style>
+            `);
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h2>🔥 កុម្ម៉ង់សម្រាប់ចុងភៅ</h2>');
+            printWindow.document.write(`<h3>តុ/បន្ទប់: <b>${tableInfo}</b></h3>`);
+            printWindow.document.write(`<p style="text-align:center; margin: 2px 0;"><small>កាលបរិច្ឆេទ: ${new Date().toLocaleString()}</small></p><hr>`);
+            printWindow.document.write('<table>');
+            printWindow.document.write('<tr><th>មុខទំនិញ (Item)</th><th class="text-end">ចំនួន (Qty)</th></tr>');
+            
+            items.forEach(i => {
+                printWindow.document.write(`<tr>
+                    <td><b>${i.item_name}</b> <br><small>(${i.category || 'ទូទៅ'})</small></td>
+                    <td class="text-end" style="font-size: 16px;">${i.quantity} ${i.unit || 'ដុំ'}</td>
+                </tr>`);
+            });
+            
+            printWindow.document.write('</table>');
+            printWindow.document.write('<p style="margin-top: 20px; text-align: center; font-size: 11px;"><small>-- សូមរៀបចំជូនភ្ញៀវ --</small></p>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
 
-        // មុខងារបើកផ្ទាំង QR Code សម្រាប់តុដែលបានជ្រើសរើស
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 400);
+        }
+
         function openTableQRCodeModal() {
             let selectElement = document.getElementById('tableOrVipSelect');
             let selectedTable = selectElement.value;
@@ -1488,7 +1424,6 @@ function printKitchenTicket(tableInfo, items) {
             tableQRCodeModal.show();
         }
 
-        // មុខងារព្រិន្ទ QR Code យកទៅបិទលើតុ
         function printQRCodeCard() {
             let tableName = document.getElementById('qrModalTableName').innerText;
             let qrUrl = document.getElementById('qrCodeUrlDisplay').value;
@@ -1525,7 +1460,6 @@ function printKitchenTicket(tableInfo, items) {
             }, 500);
         }
 
-        // មុខងារទាញយកបញ្ជីតុ និងបន្ទប់ VIP ពី Database API
         async function loadTablesFromDatabase() {
             try {
                 let res = await fetch(`${API_URL}/tables`);
@@ -1553,7 +1487,6 @@ function printKitchenTicket(tableInfo, items) {
             }
         }
 
-        // មុខងារពេលអ្នកប្រើប្រាស់ចុចបង្កើតតុ ឬបន្ទប់ VIP ថ្មី
         async function handleTableSelectionChange(selectElement) {
             if (selectElement.value === "ADD_NEW") {
                 let userInput = prompt("សូមបញ្ចូល លេខតុ ឬ ឈ្មោះបន្ទប់ VIP ថ្មី:");
@@ -1574,6 +1507,7 @@ function printKitchenTicket(tableInfo, items) {
                         if (res.ok && result.success) {
                             await loadTablesFromDatabase();
                             selectElement.value = cleanName;
+                            syncCustomerDisplay(); // Sync table change
                             
                             let loggedUser = JSON.parse(sessionStorage.getItem("loggedUserObj") || "{}");
                             if (loggedUser.username) {
@@ -1593,6 +1527,8 @@ function printKitchenTicket(tableInfo, items) {
                 } else {
                     selectElement.value = "ទូទៅ (Normal)";
                 }
+            } else {
+                syncCustomerDisplay(); // Sync table change
             }
         }
 
@@ -2586,8 +2522,6 @@ function printKitchenTicket(tableInfo, items) {
                 });
             } else {
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">គ្មានទំនិញក្នុងវិក្កយបត្រទេ</td></tr>`;
-                // Sync to Customer Display Screen
-    syncCustomerDisplay();
             }
 
             let exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 4000;
@@ -2598,6 +2532,9 @@ function printKitchenTicket(tableInfo, items) {
             if(totalLabel) {
                 totalLabel.innerHTML = `សរុប: <span class="text-success">$${grandTotal.toFixed(2)}</span> / <span class="text-primary">${formattedRiel}រៀល</span>`;
             }
+
+            // 🛠️ ធ្វើការ Sync ទិន្នន័យទៅកាន់អេក្រង់ក្រោយ (Customer Display) ភ្លាមៗនៅទីនេះ
+            syncCustomerDisplay();
         }
 
         function openEditCartModal(index) {
@@ -2637,12 +2574,6 @@ function printKitchenTicket(tableInfo, items) {
                 itemSelect.value = selectedItemId;
             }
         }
-        function showKhqrPaymentModal(qrImageUrl) {
-    // ... (Your existing payment popup code) ...
-
-    // Notify Customer Display to show KHQR
-    syncCustomerDisplay(true, qrImageUrl);
-}
 
         function onEditCartItemSelected() {
             let itemId = document.getElementById('editCartSelectItem').value;
@@ -2710,9 +2641,6 @@ function printKitchenTicket(tableInfo, items) {
         function clearCurrentCart() {
             currentCart = [];
             renderCartTable();
-            // Clear Customer Display
-    customerDisplayChannel.postMessage({ type: 'CLEAR_DISPLAY' });
-    localStorage.removeItem('pos_customer_display_data');
         }
 
         async function checkoutAndPrintInvoice() {
