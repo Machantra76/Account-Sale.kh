@@ -277,7 +277,7 @@ async function processOrderSubmission(table_info, items, res) {
             [qrOrderId, tableInfo, JSON.stringify(items), 'PENDING']
         );
 
-        // 2. ឆែកមើលថាតើតុនេះ មាន Invoice ចាស់ដែលកំពុងបើកស្រាប់ដែរឬទេ?
+        // 2. ឆែកមើលថាតើតុនេះ មាន Invoice ចាស់ដែលកំពុងបើកស្រាប់ដែរឬទេ? (ឆែកតាមតុផ្ទាល់ មិនខ្វល់ពី ID ថ្មី)
         let existingInvoiceRes = await client.query(
             `SELECT * FROM invoices WHERE table_info = $1 ORDER BY date DESC LIMIT 1`,
             [tableInfo]
@@ -287,7 +287,7 @@ async function processOrderSubmission(table_info, items, res) {
         let finalItems = [];
 
         if (existingInvoiceRes.rows.length > 0) {
-            // ប្រសិនបើមាន Invoice ចាស់ស្រាប់ -> បូកបញ្ចូលទំនិញថ្មីចូល Invoice តែមួយ
+            // ប្រសិនបើមាន Invoice របស់តុហ្នឹងរួចហើយ -> យក Invoice ID ចាស់មកប្រើ និងបូកបញ្ចូលទំនិញថ្មីចូល
             let oldInvoice = existingInvoiceRes.rows[0];
             let oldItems = typeof oldInvoice.items === 'string' ? JSON.parse(oldInvoice.items) : (oldInvoice.items || []);
             
@@ -310,7 +310,7 @@ async function processOrderSubmission(table_info, items, res) {
                 }
             });
         } else {
-            // ប្រសិនបើគ្មាន Invoice ទេ -> បង្កើត Invoice ID ថ្មី
+            // ប្រសិនបើគ្មាន Invoice ទេ -> ទើបបង្កើត Invoice ID ថ្មី
             invoiceId = 'INV-QR-' + Date.now();
             finalItems = items.map(i => ({
                 item_id: i.item_id || null,
@@ -322,7 +322,7 @@ async function processOrderSubmission(table_info, items, res) {
             }));
         }
 
-        // 3. រក្សាទុក ឬ Update ចូលក្នុង Table invoices
+        // 3. រក្សាទុក ឬ Update ចូលក្នុង Table invoices ក្រោម ID តែមួយ
         await client.query(
             'INSERT INTO invoices (id, date, table_info, items) VALUES ($1, NOW(), $2, $3) ON CONFLICT (id) DO UPDATE SET items = $3, table_info = $2',
             [invoiceId, tableInfo, JSON.stringify(finalItems)]
@@ -357,7 +357,7 @@ async function processOrderSubmission(table_info, items, res) {
         await client.query('COMMIT');
         res.status(201).json({ 
             success: true, 
-            message: ' Order បញ្ជូនជោគជ័យ!', 
+            message: 'Order បញ្ជូនជោគជ័យ!', 
             invoice_id: invoiceId,
             qr_order_id: qrOrderId
         });
@@ -371,7 +371,7 @@ async function processOrderSubmission(table_info, items, res) {
     }
 }
 
-// Support ទាំង രണ്ട് Endpoints ដើម្បីកុំឱ្យច្រឡំជាមួយកូដចាស់ ឬកូដថ្មី
+// Support ទាំងពីរ Endpoints ដើម្បីកុំឱ្យមានបញ្ហាខុសគ្នា
 app.post('/api/customer-orders', async (req, res) => {
     await processOrderSubmission(req.body.table_info, req.body.items, res);
 });
