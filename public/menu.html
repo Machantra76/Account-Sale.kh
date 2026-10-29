@@ -288,31 +288,32 @@
             }
         }
 
-        async function submitOrder() {
+       async function submitOrder() {
             if (customerCart.length === 0) return;
 
-            let invoiceObj = {
-                id: 'INV-QR-' + Date.now(),
-                date: new Date().toISOString(),
-                created_by: 'Customer (QR)',
-                table_info: tableParam,
+            // រៀបចំទិន្នន័យសម្រាប់ផ្ញើទៅកាន់ Endpoint ផ្ដល់សេវា QR Orders របស់ Server
+            let orderData = {
+                table_info: tableParam, // ឈ្មោះតុ ឬ Other
                 items: customerCart
             };
 
             try {
-                let res = await fetch(`${API_URL}/invoices`, {
+                // ប្តូរមកហៅ API /api/customer-orders ដើម្បីឱ្យ Server ធ្វើការបង្កើត qr_orders និង Smart Merge ចូល Invoice តែមួយ
+                let res = await fetch(`${API_BASE}/api/customer-orders`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(invoiceObj)
+                    body: JSON.stringify(orderData)
                 });
 
-                if (res.ok) {
-                    alert("✅ ការកុម្ម៉ង់ទំនិញរបស់អ្នកត្រូវបានផ្ញើទៅកាន់ POS ជោគជ័យ! សូមរង់ចាំបន្តិច។");
+                let result = await res.json();
+
+                if (res.ok && result.success) {
+                    alert("✅ ការកុម្ម៉ង់ទំនិញរបស់អ្នកត្រូវបានផ្ញើទៅកាន់ POS ជោគជ័យ! សូមរង់ចាំអ្នកលក់ទទួលយក។");
                     customerCart = [];
                     updateCartDisplay();
                     orderModal.hide();
                 } else {
-                    alert("❌ មានបញ្ហាក្នុងការផ្ញើការកុម្ម៉ង់!");
+                    alert(`❌ ${result.error || 'មានបញ្ហាក្នុងការផ្ញើការកុម្ម៉ង់!'}`);
                 }
             } catch (err) {
                 console.error("Error submitting order:", err);
