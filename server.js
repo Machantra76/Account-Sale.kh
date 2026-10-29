@@ -11,10 +11,9 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
-// បន្ថែមត្រង់នេះ ដើម្បីការពារកុំឱ្យ Node.js Crash ពេល Database หลุดการតភ្ជាប់
+
 pool.on('error', (err, client) => {
     console.error('❌ Unexpected error on idle PostgreSQL client', err);
-    // មិនបាច់ throw error ទេ ដើម្បីឱ្យ Server នៅតែបន្តដំណើរការធម្មតា
 });
 
 pool.connect()
@@ -83,7 +82,6 @@ const initTables = async () => {
             action TEXT NOT NULL
         );
     `;
-
     const queryDebts = `
         CREATE TABLE IF NOT EXISTS debts (
             id SERIAL PRIMARY KEY,
@@ -98,7 +96,6 @@ const initTables = async () => {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
-
     const queryDebtPayments = `
         CREATE TABLE IF NOT EXISTS debt_payments (
             id SERIAL PRIMARY KEY,
@@ -108,12 +105,21 @@ const initTables = async () => {
             note TEXT
         );
     `;
-
     const queryTables = `
         CREATE TABLE IF NOT EXISTS restaurant_tables (
             id SERIAL PRIMARY KEY,
             table_type VARCHAR(50) NOT NULL,
             table_name VARCHAR(100) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+    // បន្ថែម Table សម្រាប់ QR Orders ក្នុង Database ដើម្បីការពារកុំឱ្យស្ងាត់ឈឹង
+    const queryQrOrders = `
+        CREATE TABLE IF NOT EXISTS qr_orders (
+            id VARCHAR(100) PRIMARY KEY,
+            table_info VARCHAR(100) NOT NULL,
+            items JSONB NOT NULL,
+            status VARCHAR(50) DEFAULT 'PENDING',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -127,6 +133,7 @@ const initTables = async () => {
         await pool.query(queryDebts);
         await pool.query(queryDebtPayments);
         await pool.query(queryTables);
+        await pool.query(queryQrOrders);
         
         await pool.query(`ALTER TABLE master_items ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'EXPENSE';`);
         await pool.query(`ALTER TABLE master_items ADD COLUMN IF NOT EXISTS image_url TEXT;`);
@@ -147,7 +154,6 @@ const initTables = async () => {
             ON CONFLICT (username) DO NOTHING;
         `);
 
-        // បញ្ចូលតុ/បន្ទប់គំរូដំបូង ប្រសិនបើគ្មានក្នុង Database
         await pool.query(`
             INSERT INTO restaurant_tables (table_type, table_name) VALUES
             ('TABLE', 'តុទី ១'), ('TABLE', 'តុទី ២'), ('TABLE', 'តុទី ៣'), ('TABLE', 'តុទី ៤'),
@@ -248,68 +254,62 @@ app.delete('/api/users/:id', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-// បញ្ជីរក្សាទុក QR Orders
-let qrOrdersDatabase = [];
 
-// 1. API សម្រាប់ភ្ញៀវផ្ញើការកុម្ម៉ង់តាម QR Code
-app.post('/api/accounting/qr-orders', (req, res) => {
+// QR ORDERS API (Using Database instead of local array)
+app.post('/api/accounting/qr-orders', async (req, res) => {
     try {
         let { table_info, items } = req.body;
         if (!table_info || !items || items.length === 0) {
             return res.status(400).json({ success: false, error: 'ទិន្នន័យកុម្ម៉ង់មិនត្រឹមត្រូវ' });
         }
 
-        let newOrder = {
-            id: 'QRO-' + Date.now(),
-            table_info: table_info,
-            items: items,
-            status: 'PENDING', // ស្ថានភាពដំបូង: Pending (រង់ចាំអ្នកលក់ផ្ទៀងផ្ទាត់)
-            created_at: new Date().toISOString()
-        };
+        let orderId = 'QRO-' + Date.now();
+        let result = await pool.query(
+            'INSERT INTO qr_orders (id, table_info, items, status) VALUES ($1, $2, $3, $4) RETURNING *',
+            [orderId, table_info, JSON.stringify(items), 'PENDING']
+        );
 
-        qrOrdersDatabase.push(newOrder);
-        res.json({ success: true, message: 'បញ្ជូនការកុម្ម៉ង់បានរៀបរយ', data: newOrder });
+        res.json({ success: true, message: 'បញ្ជូនការកុម្ម៉ង់បានរៀបរយ', data: result.rows[0] });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// 2. API សម្រាប់ប្រព័ន្ធ POS ទាញយកកុម្ម៉ង់ដែលកំពុង Pending
-app.get('/api/accounting/qr-orders/pending', (req, res) => {
-    let pendingOrders = qrOrdersDatabase.filter(o => o.status === 'PENDING');
-    res.json({ success: true, data: pendingOrders });
+app.get('/api/accounting/qr-orders/pending', async (req, res) => {
+    try {
+        let result = await pool.query("SELECT * FROM qr_orders WHERE status = 'PENDING' ORDER BY created_at ASC");
+        res.json({ success: true, data: result.rows });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
-// 3. API សម្រាប់អ្នកលក់ចុច "ទទួលយកការកុម្ម៉ង់ (Accept)" 
-app.post('/api/accounting/qr-orders/:id/accept', (req, res) => {
-    let orderId = req.params.id;
-    let order = qrOrdersDatabase.find(o => o.id === orderId);
+app.post('/api/accounting/qr-orders/:id/accept', async (req, res) => {
+    try {
+        let orderId = req.params.id;
+        let result = await pool.query(
+            "UPDATE qr_orders SET status = 'ACCEPTED' WHERE id = $1 RETURNING *",
+            [orderId]
+        );
 
-    if (!order) {
-        return res.status(404).json({ success: false, error: 'រកមិនឃើញការកុម្ម៉ង់នេះទេ' });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'រកមិនឃើញការកុម្ម៉ង់នេះទេ' });
+        }
+
+        res.json({ success: true, message: 'បានទទួលយកការកុម្ម៉ង់ជោគជ័យ', data: result.rows[0] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
-
-    if (order.status === 'ACCEPTED') {
-        return res.status(400).json({ success: false, error: 'ការកុម្ម៉ង់នេះត្រូវបានទទួលទួលយករួចហើយ' });
-    }
-
-    // ប្តូរស្ថានភាពទៅជា ACCEPTED
-    order.status = 'ACCEPTED';
-
-    res.json({ success: true, message: 'បានទទួលយកការកុម្ម៉ង់ជោគជ័យ', data: order });
 });
 
-// 4. API សម្រាប់បដិសេធ ឬបោះបង់ការកុម្ម៉ង់ (Reject)
-app.post('/api/accounting/qr-orders/:id/reject', (req, res) => {
-    let orderId = req.params.id;
-    let order = qrOrdersDatabase.find(o => o.id === orderId);
-
-    if (!order) {
-        return res.status(404).json({ success: false, error: 'រកមិនឃើញការកុម្ម៉ង់នេះទេ' });
+app.post('/api/accounting/qr-orders/:id/reject', async (req, res) => {
+    try {
+        let orderId = req.params.id;
+        await pool.query("UPDATE qr_orders SET status = 'REJECTED' WHERE id = $1", [orderId]);
+        res.json({ success: true, message: 'បានបដិសេធការកុម្ម៉ង់រៀបរយ' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
-
-    order.status = 'REJECTED';
-    res.json({ success: true, message: 'បានបដិសេធការកុម្ម៉ង់រៀបរយ' });
 });
 
 // INVOICES API
@@ -332,70 +332,6 @@ app.post('/api/accounting/invoices', async (req, res) => {
         res.json({ success: true, message: 'Saved invoice successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
-    }
-});
-// CUSTOMER QR ORDER API - សម្រាប់ទទួល Order ពីទូរសព្ទភ្ញៀវដែលបានស្កែន QR Code
-app.post('/api/customer-orders', async (req, res) => {
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-        const { id, table_info, items } = req.body;
-
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(400).json({ success: false, error: 'គ្មានទំនិញក្នុង Order ទេ!' });
-        }
-
-        const invoiceId = id || ('INV-QR-' + Date.now());
-        const tableInfo = table_info || 'ទូទៅ';
-
-        // ១. រក្សាទុក Order ចូលទៅក្នុងตาราง invoices ជាមួយស្ថានភាពរង់ចាំ
-        await client.query(
-            'INSERT INTO invoices (id, date, table_info, items) VALUES ($1, NOW(), $2, $3) ON CONFLICT (id) DO UPDATE SET items = $3, table_info = $2',
-            [invoiceId, tableInfo, JSON.stringify(items)]
-        );
-
-        // ២. កត់ត្រាចូល transactions (ជាប្រភេទ INCOME) និងកាត់ស្តុកស្វ័យប្រវត្តិ
-        for (let item of items) {
-            let qty = parseInt(item.quantity) || 1;
-            let price = parseFloat(item.unit_price) || 0;
-            let totalAmount = qty * price;
-
-            // បញ្ចូលទិន្នន័យការលក់
-            await client.query(
-                `INSERT INTO transactions (type, item_id, category, item_name, quantity, unit_price, amount)
-                 VALUES ('INCOME', $1, $2, $3, $4, $5, $6)`,
-                [item.item_id || null, item.category || 'General', item.item_name, qty, price, totalAmount]
-            );
-
-            // កាត់ស្តុកពី master_items ប្រសិនបើมี item_id
-            if (item.item_id) {
-                await client.query(
-                    `UPDATE master_items SET stock_quantity = stock_quantity - $1 WHERE id = $2`,
-                    [qty, item.item_id]
-                );
-            }
-        }
-
-        // ៣. កត់ត្រាចូល Activity Logs ថាមានភ្ញៀវកុម្ម៉ង់តាម QR Code
-        await client.query(
-            'INSERT INTO activity_logs (username, role, action) VALUES ($1, $2, $3)',
-            ['Customer-QR', 'CUSTOMER', `ភ្ញៀវកុម្ម៉ង់ទំនិញតាម QR Code (តុ/បន្ទប់: ${tableInfo} - វិក្កយបត្រ: ${invoiceId})`]
-        );
-
-        await client.query('COMMIT');
-        res.status(201).json({ 
-            success: true, 
-            message: 'Order placed successfully via QR Code!', 
-            invoice_id: invoiceId 
-        });
-
-    } catch (err) {
-        await client.query('ROLLBACK');
-        console.error("Error processing customer QR order:", err);
-        res.status(500).json({ success: false, error: err.message });
-    } finally {
-        client.release();
     }
 });
 
@@ -453,16 +389,8 @@ app.post('/api/accounting/master-items', async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;
         `;
         let result = await pool.query(query, [
-            formattedType, 
-            category, 
-            item_name, 
-            image_url || '', 
-            itemUnit,
-            stock_quantity || 0, 
-            cost_price || 0,
-            retail_price || 0,
-            wholesale_price || 0,
-            barcode || ''
+            formattedType, category, item_name, image_url || '', itemUnit,
+            stock_quantity || 0, cost_price || 0, retail_price || 0, wholesale_price || 0, barcode || ''
         ]);
         
         res.status(201).json({ success: true, message: "Master item added successfully!", data: result.rows[0] });
@@ -483,16 +411,8 @@ app.put('/api/accounting/master-items/:id', async (req, res) => {
             WHERE id = $10 RETURNING *;
         `;
         let result = await pool.query(query, [
-            category, 
-            item_name, 
-            image_url || '', 
-            itemUnit,
-            stock_quantity || 0, 
-            cost_price || 0, 
-            retail_price || 0,
-            wholesale_price || 0,
-            barcode || '',
-            id
+            category, item_name, image_url || '', itemUnit, stock_quantity || 0, 
+            cost_price || 0, retail_price || 0, wholesale_price || 0, barcode || '', id
         ]);
 
         if (result.rows.length === 0) {
@@ -552,7 +472,6 @@ app.post('/api/accounting/transactions', async (req, res) => {
                     let item = masterRes.rows[0];
                     let oldStock = parseInt(item.stock_quantity) || 0;
                     let oldCostPrice = parseFloat(item.cost_price) || 0;
-                    
                     let newStock = oldStock + qty;
                     let newCostPrice = oldCostPrice;
 
@@ -629,6 +548,22 @@ app.put('/api/accounting/transactions/:id', async (req, res) => {
     }
 });
 
+app.delete('/api/accounting/transactions/:id', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const { id } = req.params;
+        await client.query('DELETE FROM transactions WHERE id = $1', [id]);
+        await client.query('COMMIT');
+        res.json({ success: true, message: "Transaction deleted successfully!" });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ success: false, error: err.message });
+    } finally {
+        client.release();
+    }
+});
+
 // DEBTS API
 app.get('/api/accounting/debts', async (req, res) => {
     try {
@@ -684,11 +619,7 @@ app.post('/api/accounting/debts/:id/pay', async (req, res) => {
         let debt = debtRes.rows[0];
         let newPaidAmount = parseFloat(debt.paid_amount) + payAmount;
         let totalAmt = parseFloat(debt.total_amount);
-        
-        let newStatus = 'PARTIAL';
-        if (newPaidAmount >= totalAmt) {
-            newStatus = 'PAID';
-        }
+        let newStatus = newPaidAmount >= totalAmt ? 'PAID' : 'PARTIAL';
 
         await client.query(
             'INSERT INTO debt_payments (debt_id, paid_amount, note) VALUES ($1, $2, $3)',
@@ -728,8 +659,8 @@ app.get('/api/accounting/summary', async (req, res) => {
         
         let totalIncome = 0;
         let totalProfit = 0;
-
         let costPriceMap = {};
+
         masterResult.rows.forEach(m => {
             costPriceMap[m.id] = parseFloat(m.cost_price) || 0;
         });
@@ -758,24 +689,6 @@ app.get('/api/accounting/summary', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-app.delete('/api/accounting/transactions/:id', async (req, res) => {
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-        const { id } = req.params;
-
-        await client.query('DELETE FROM transactions WHERE id = $1', [id]);
-
-        await client.query('COMMIT');
-        res.json({ success: true, message: "Transaction deleted successfully!" });
-    } catch (err) {
-        await client.query('ROLLBACK');
-        res.status(500).json({ success: false, error: err.message });
-    } finally {
-        client.release();
     }
 });
 
