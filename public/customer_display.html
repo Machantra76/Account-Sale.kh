@@ -11,13 +11,14 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
             background-color: #0b132b;
             color: #ffffff;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            overflow-x: hidden;
-            height: 100vh;
-            margin: 0;
+            overflow: hidden; /* បិទការ scroll ទាំងមូលអេក្រង់ ទុកឱ្យរត់តែក្នុងប្រអប់ */
         }
         .navbar-brand {
             font-weight: 700;
@@ -26,15 +27,15 @@
         .card-custom {
             background-color: #1c2541;
             border: 1px solid #3a506b;
-            border-radius: 16px;
+            border-radius: 14px;
             color: #fff;
         }
-        /* 🤍 ពណ៌សស្អាត (Clean White Theme) សម្រាប់កាតបញ្ជីទំនិញខាងឆ្វេង */
+        /* 🤍 ពណ៌សស្អាត (Clean White Theme) សម្រាប់កាតខាងឆ្វេង */
         .card-white-theme {
             background-color: #ffffff !important;
             color: #212529 !important;
             border: 1px solid #ced4da;
-            border-radius: 16px;
+            border-radius: 14px;
         }
         .card-white-theme .text-muted {
             color: #6c757d !important;
@@ -47,19 +48,19 @@
             color: #fff;
             font-size: 12px;
         }
+        /* កំណត់កម្ពស់តារាងទំនិញឱ្យនៅល្មមស្អាត មិនបាំងបلوក */
         .display-content-area {
-            min-height: 380px;
-            max-height: 420px;
+            max-height: 220px;
             overflow-y: auto;
         }
         .ad-banner-container {
             position: relative;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border: 2px dashed #cbd5e1;
             text-align: center;
-            padding: 15px;
+            padding: 10px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -67,11 +68,11 @@
         }
         .promo-media-element {
             width: 100% !important;
-            height: 420px !important;
+            height: 240px !important;
             object-fit: cover !important;
-            border-radius: 10px;
+            border-radius: 8px;
         }
-        /* 🎨 ប្រអប់ខាងស្តាំពណ៌សស្អាត និងធំទូលាយ */
+        /* 🎨 ប្រអប់ខាងស្តាំពណ៌សស្អាត */
         .card-white-custom {
             background-color: #ffffff !important;
             color: #212529 !important;
@@ -82,75 +83,75 @@
         }
     </style>
 </head>
-<body class="d-flex flex-column h-100 p-3">
+<body class="d-flex flex-column h-100">
 
     <!-- Top Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark card-custom px-4 mb-3">
+    <nav class="navbar navbar-expand-lg navbar-dark card-custom px-3 py-2 mb-2 flex-shrink-0">
         <div class="container-fluid p-0">
             <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <i class="bi bi-shop fs-3 text-gold"></i>
+                <i class="bi bi-shop fs-4 text-gold"></i>
                 <div>
-                    <h5 class="m-0 fw-bold">ហាងរបស់យើង (WELCOME)</h5>
-                    <small class="text-white-50" style="font-size: 12px;">សូមស្វាគមន៍អតិថិជនជាទីស្រឡាញ់</small>
+                    <h6 class="m-0 fw-bold">ហាងរបស់យើង (WELCOME)</h6>
+                    <small class="text-white-50" style="font-size: 11px;">សូមស្វាគមន៍អតិថិជនជាទីស្រឡាញ់</small>
                 </div>
             </a>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success px-3 py-2 rounded-pill" id="connectionStatus">
-                    <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> អេក្រង់អតិថិជន (Connected)
+                <span class="badge bg-success px-3 py-1 rounded-pill" style="font-size: 11px;" id="connectionStatus">
+                    <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> អេក្រង់អតិថិជន (Connected)
                 </span>
             </div>
         </div>
     </nav>
 
-    <!-- Main Layout -->
-    <div class="row g-3 flex-grow-1">
-        <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ (ដាក់ពណ៌ស Clean White Theme) -->
-        <div class="col-lg-8 d-flex flex-column">
-            <div class="card card-white-theme p-3 flex-grow-1 d-flex flex-column shadow">
+    <!-- Main Layout ពេញអេក្រង់ -->
+    <div class="row g-2 flex-grow-1 overflow-hidden">
+        <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ (Clean White Theme) -->
+        <div class="col-lg-8 d-flex flex-column h-100">
+            <div class="card card-white-theme p-3 flex-grow-1 d-flex flex-column shadow-sm overflow-hidden">
                 <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                    <h6 class="m-0 fw-bold text-dark">
+                    <h6 class="m-0 fw-bold text-dark" style="font-size: 14px;">
                         <i class="bi bi-receipt me-1 text-primary"></i> បញ្ជីមុខទំនិញ (Order Items)
                     </h6>
                     <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
                 </div>
 
-                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ) -->
-                <div id="emptyStateView" class="flex-grow-1 d-flex flex-column p-2">
+                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ - បង្ហាញໂฆษณาទំហំល្មមស្អាត) -->
+                <div id="emptyStateView" class="flex-grow-1 d-flex flex-column">
                     <div class="ad-banner-container w-100">
-                        <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1 px-1">
                             <div>
-                                <h4 class="fw-bold text-dark mb-0" style="font-size: 16px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-primary fs-6">| WELCOME TO OUR SHOP</span></h4>
+                                <h6 class="fw-bold text-dark mb-0" style="font-size: 14px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-primary" style="font-size: 12px;">| WELCOME</span></h6>
                             </div>
                             <div>
-                                <label for="promoMediaInput" class="btn btn-sm btn-outline-dark py-1 px-2 fw-bold" style="font-size: 11px; cursor: pointer;">
+                                <label for="promoMediaInput" class="btn btn-sm btn-outline-dark py-0 px-2 fw-bold" style="font-size: 10px; cursor: pointer;">
                                     <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
                                 </label>
                                 <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
                             </div>
                         </div>
                         
-                        <div id="promoContainer" class="shadow rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center flex-grow-1">
+                        <div id="promoContainer" class="shadow-sm rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center flex-grow-1">
                             <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="3500">
                                 <div class="carousel-inner h-100" id="promoCarouselInner">
                                     <div class="carousel-item active h-100">
-                                        <img src="https://via.placeholder.com/900x500/ffffff/333333?text=Special+Promotion+Banner+1" class="promo-media-element" alt="Promo 1">
+                                        <img src="https://via.placeholder.com/900x400/ffffff/333333?text=Special+Promotion+Banner+1" class="promo-media-element" alt="Promo 1">
                                     </div>
                                     <div class="carousel-item h-100">
-                                        <img src="https://via.placeholder.com/900x500/f1f5f9/333333?text=Delicious+Food+And+Drinks+2" class="promo-media-element" alt="Promo 2">
+                                        <img src="https://via.placeholder.com/900x400/f1f5f9/333333?text=Delicious+Food+And+Drinks+2" class="promo-media-element" alt="Promo 2">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <p class="text-muted mt-2 mb-0 small" style="font-size: 12px;">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
+                        <p class="text-muted mt-1 mb-0" style="font-size: 11px;">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
                     </div>
                 </div>
 
                 <!-- បើមានទំនិញ បង្ហាញជាตาราง List -->
                 <div id="itemsTableView" class="display-content-area" style="display: none;">
-                    <table class="table table-striped table-hover align-middle mb-0">
-                        <thead>
-                            <tr class="table-light text-secondary" style="font-size: 13px;">
+                    <table class="table table-striped table-hover align-middle mb-0" style="font-size: 13px;">
+                        <thead class="table-light text-secondary sticky-top">
+                            <tr>
                                 <th>មុខទំនិញ (Item)</th>
                                 <th class="text-center">ចំនួន (Qty)</th>
                                 <th class="text-end">តម្លៃ ($)</th>
@@ -166,46 +167,46 @@
         </div>
 
         <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
-        <div class="col-lg-4 d-flex flex-column gap-3">
-            <div class="card card-custom p-4">
-                <h6 class="text-white mb-3 fw-bold" style="font-size: 14px;">សរុបការទូទាត់ (Payment Summary)</h6>
-                <div class="d-flex justify-content-between mb-2">
+        <div class="col-lg-4 d-flex flex-column h-100 gap-2">
+            <div class="card card-custom p-3 flex-shrink-0">
+                <h6 class="text-white mb-2 fw-bold" style="font-size: 13px;">សរុបការទូទាត់ (Payment Summary)</h6>
+                <div class="d-flex justify-content-between mb-1" style="font-size: 13px;">
                     <span class="text-white-50">សរុបជារួម (Subtotal):</span>
                     <span class="fw-bold text-white" id="subTotalDisplay">$0.00</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
+                <div class="d-flex justify-content-between mb-1" style="font-size: 13px;">
                     <span class="text-white-50">បញ្ចុះតម្លៃ (Discount):</span>
                     <span class="text-danger fw-bold" id="discountDisplay">-$0.00</span>
                 </div>
-                <div class="d-flex justify-content-between mb-3 border-bottom pb-2 border-secondary">
+                <div class="d-flex justify-content-between mb-2 border-bottom pb-1 border-secondary" style="font-size: 13px;">
                     <span class="text-white-50">ពន្ធ (VAT):</span>
                     <span class="fw-bold text-white" id="taxDisplay">$0.00</span>
                 </div>
 
-                <div class="p-3 rounded-3" style="background-color: #0b132b; border: 1px solid #3a506b;">
-                    <small class="text-success fw-bold d-block mb-1">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
+                <div class="p-2 rounded-3" style="background-color: #0b132b; border: 1px solid #3a506b;">
+                    <small class="text-success fw-bold d-block" style="font-size: 11px;">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
                     <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="text-gold fw-bold m-0" id="grandTotalDisplay">$0.00</h2>
-                        <span class="badge bg-secondary px-2 py-1 text-white" id="totalQtyBadge">៛ 0</span>
+                        <h3 class="text-gold fw-bold m-0" id="grandTotalDisplay">$0.00</h3>
+                        <span class="badge bg-secondary px-2 py-1 text-white" style="font-size: 11px;" id="totalQtyBadge">៛ 0</span>
                     </div>
                 </div>
             </div>
 
             <!-- 🛒 ប្រអប់ខាងក្រោម Grand Total (Background ស) សម្រាប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ៗ -->
-            <div class="card card-white-custom p-3 flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center shadow-sm rounded-4">
-                <div id="catalogDisplayArea" class="w-100 d-flex flex-column align-items-center justify-content-center">
-                    <div class="text-muted mb-2" style="font-size: 3.5rem;">
+            <div class="card card-white-custom p-3 flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center shadow-sm rounded-4 overflow-hidden">
+                <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                    <div class="text-muted mb-1" style="font-size: 2.5rem;">
                         <i class="bi bi-basket3"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1">ទំនិញត្រូវបានជ្រើសរើស</h6>
-                    <p class="text-muted small m-0">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                    <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                    <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-center text-white-50 mt-3" style="font-size: 11px;">
+    <footer class="text-center text-white-50 mt-1 flex-shrink-0" style="font-size: 10px;">
         សហការផ្ដល់សេវាកម្មដោយប្រព័ន្ធគ្រប់គ្រងការលក់ POS របស់ហាងយើងខ្ញុំ
     </footer>
 
@@ -271,7 +272,7 @@
                     tr.innerHTML = `
                         <td>
                             <div class="fw-bold text-dark">${item.item_name}</div>
-                            <small class="text-muted">${item.category || ''}</small>
+                            <small class="text-muted" style="font-size: 11px;">${item.category || ''}</small>
                         </td>
                         <td class="text-center text-dark fw-bold">${item.quantity} ${item.unit || 'ដុំ'}</td>
                         <td class="text-end text-secondary">$${parseFloat(item.unit_price).toFixed(2)}</td>
@@ -284,15 +285,15 @@
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
 
-                // 🖼️ បង្ហាញរូបភាពទំនិញទាំងអស់ក្នុងកន្រ្ដកដោយពង្រីកទំហំឱ្យធំច្បាស់ល្អ (ទំហំ 110px) មិនបាត់រូបចាស់
+                // 🖼️ បង្ហាញរូបភាពទំនិញទាំងអស់ក្នុងកន្រ្ដកដោយពង្រីកទំហំឱ្យធំច្បាស់ល្អ មិនបាត់រូបចាស់
                 let imagesHtml = '';
                 items.forEach(item => {
                     if (item.image && item.image.trim() !== "") {
                         imagesHtml += `
-                            <div class="text-center p-2 bg-light rounded-3 border shadow-sm" style="width: 130px;">
-                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 115px; height: 110px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
-                                <div class="text-dark fw-bold text-truncate" style="font-size: 11px; max-width: 120px;" title="${item.item_name}">${item.item_name}</div>
-                                <span class="badge bg-danger text-white px-2 py-0" style="font-size: 10px;">ចំនួន: ${item.quantity}</span>
+                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 105px;">
+                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 95px; height: 90px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
+                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 95px;" title="${item.item_name}">${item.item_name}</div>
+                                <span class="badge bg-danger text-white px-1 py-0" style="font-size: 9px;">ចំនួន: ${item.quantity}</span>
                             </div>
                         `;
                     }
@@ -300,9 +301,9 @@
 
                 if (imagesHtml !== "") {
                     catalogArea.innerHTML = `
-                        <div class="w-100 text-center">
-                            <h6 class="fw-bold text-dark mb-2" style="font-size: 14px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក (ច្បាស់និងធំ)</h6>
-                            <div class="d-flex flex-wrap justify-content-center gap-2" style="max-height: 230px; overflow-y: auto;">
+                        <div class="w-100 h-100 d-flex flex-column justify-content-center">
+                            <h6 class="fw-bold text-dark mb-2" style="font-size: 13px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 220px;">
                                 ${imagesHtml}
                             </div>
                         </div>
@@ -311,12 +312,12 @@
                     let latestItem = items[items.length - 1];
                     catalogArea.innerHTML = `
                         <div class="w-100 text-center p-2">
-                            <div class="text-warning mb-2" style="font-size: 3rem;">
+                            <div class="text-warning mb-1" style="font-size: 2.5rem;">
                                 <i class="bi bi-box-seam-fill"></i>
                             </div>
-                            <h5 class="fw-bold text-dark mb-1">${latestItem.item_name}</h5>
-                            <div class="text-danger fs-4 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</div>
-                            <small class="text-muted">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
+                            <h6 class="fw-bold text-dark mb-1">${latestItem.item_name}</h6>
+                            <div class="text-danger fs-5 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</div>
+                            <small class="text-muted" style="font-size: 11px;">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
                         </div>
                     `;
                 }
@@ -330,11 +331,11 @@
                 totalQtyBadge.innerText = `៛ 0`;
 
                 catalogArea.innerHTML = `
-                    <div class="text-muted mb-2" style="font-size: 3.5rem;">
+                    <div class="text-muted mb-1" style="font-size: 2.5rem;">
                         <i class="bi bi-basket3"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1">ទំនិញត្រូវបានជ្រើសរើស</h6>
-                    <p class="text-muted small m-0">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                    <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                    <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                 `;
             }
         }
