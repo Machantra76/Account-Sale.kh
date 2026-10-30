@@ -15,10 +15,9 @@
             background-color: #0b132b;
             color: #ffffff;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            min-height: 100vh;
-            margin: 0;
             overflow-x: hidden;
-            overflow-y: auto;
+            height: 100vh;
+            margin: 0;
         }
         .navbar-brand {
             font-weight: 700;
@@ -48,13 +47,11 @@
             color: #fff;
             font-size: 12px;
         }
-        
-        /* 🛠️ កែសម្រួលកម្ពស់តារាងទំនិញមិនឱ្យហៀរចេញក្រៅអេក្រង់ */
         .display-content-area {
-            max-height: 55vh;
+            min-height: 380px;
+            max-height: 420px;
             overflow-y: auto;
         }
-
         .ad-banner-container {
             position: relative;
             border-radius: 12px;
@@ -68,15 +65,12 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        
-        /* 🛠️ កែទំហំ Banner ឱ្យសមល្មម មិនហៀរ */
         .promo-media-element {
             width: 100% !important;
-            max-height: 380px !important;
-            object-fit: contain !important;
+            height: 420px !important;
+            object-fit: cover !important;
             border-radius: 10px;
         }
-        
         /* 🎨 ប្រអប់ខាងស្តាំពណ៌សស្អាត និងធំទូលាយ */
         .card-white-custom {
             background-color: #ffffff !important;
