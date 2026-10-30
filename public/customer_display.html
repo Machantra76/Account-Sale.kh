@@ -11,209 +11,230 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100vh;
-            margin: 0;
-            padding: 10px;
-            background-color: #0b132b;
-            color: #ffffff;
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            overflow: hidden;
+            margin: 0;
+            padding: 15px;
         }
-        .navbar-brand {
+        .container-fluid {
+            max-width: 1600px;
+        }
+        /* 🎨 Top Navbar ស្រដៀងរូបទី 2 */
+        .navbar-custom {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .navbar-brand-title {
             font-weight: 700;
-            color: #ffb703;
+            color: #0d6efd;
         }
-        .card-custom {
-            background-color: #1c2541;
-            border: 1px solid #3a506b;
-            border-radius: 14px;
-            color: #fff;
+        /* 📦 Card Styling ស្រដៀងប្រអប់ Dashboard ក្នុងរូបទី 2 */
+        .card-box {
+            background-color: #ffffff;
+            border: 1px solid #198754; /* គែមពណ៌បៃតងស្អាត */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 15px;
         }
-        /* 🤍 ពណ៌សស្អាត (Clean White Theme) សម្រាប់កាតខាងឆ្វេង */
-        .card-white-theme {
-            background-color: #ffffff !important;
-            color: #212529 !important;
-            border: 1px solid #ced4da;
-            border-radius: 14px;
+        .card-box-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #198754;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .card-white-theme .text-muted {
-            color: #6c757d !important;
-        }
-        .text-gold {
-            color: #d97706;
-        }
-        .badge-count {
-            background-color: #4f46e5;
-            color: #fff;
-            font-size: 12px;
-        }
-        .display-content-area {
-            max-height: 220px;
-            overflow-y: auto;
-        }
+        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម */
         .ad-banner-container {
             position: relative;
             border-radius: 10px;
             overflow: hidden;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border: 2px dashed #cbd5e1;
-            text-align: center;
-            padding: 10px;
-            flex-grow: 1;
+            background: #000000;
+            border: 2px dashed #198754;
+            height: 350px;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
         }
-        /* 🛠️ កែសម្រួលត្រង់នេះឱ្យរូបភាព/វីដេអូលាតពេញប្រអប់ពណ៌ខ្មៅល្អ */
         .promo-media-element {
             width: 100% !important;
             height: 100% !important;
-            object-fit: fill !important; 
+            object-fit: fill !important; /* លាតពេញប្រអប់ខ្មៅល្អ */
+        }
+        /* 🛒 ប្រអប់ខាងស្តាំ */
+        .payment-box {
+            background-color: #ffffff;
+            border: 1px solid #198754;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .grand-total-screen {
+            background-color: #212529;
+            color: #ffc107;
+            padding: 12px;
             border-radius: 8px;
+            text-align: right;
         }
-        /* 🎨 ប្រអប់ខាងស្តាំពណ៌សស្អាត */
-        .card-white-custom {
-            background-color: #ffffff !important;
-            color: #212529 !important;
-            border: 1px solid #ced4da;
-        }
-        .card-white-custom .text-muted {
-            color: #6c757d !important;
+        .display-content-area {
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
-<body class="d-flex flex-column h-100">
+<body>
 
-    <!-- Top Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark card-custom px-3 py-2 mb-2 flex-shrink-0">
-        <div class="container-fluid p-0">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <i class="bi bi-shop fs-4 text-gold"></i>
+    <div class="container-fluid">
+        <!-- Top Header ស្រដៀងរូបទី 2 -->
+        <nav class="navbar navbar-custom mb-3">
+            <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shop fs-3 text-primary"></i>
+                    <div>
+                        <h5 class="m-0 navbar-brand-title">ប្រព័ន្ធគ្រប់គ្រងការលក់ និង ស្តុក (Customer Display)</h5>
+                        <small class="text-muted">POS & Inventory Management System</small>
+                    </div>
+                </div>
                 <div>
-                    <h6 class="m-0 fw-bold">ហាងរបស់យើង (WELCOME)</h6>
-                    <small class="text-white-50" style="font-size: 11px;">សូមស្វាគមន៍អតិថិជនជាទីស្រឡាញ់</small>
+                    <span class="badge bg-success px-3 py-2 rounded-pill" id="connectionStatus">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> អេក្រង់អតិថិជន (Connected)
+                    </span>
                 </div>
-            </a>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success px-3 py-1 rounded-pill" style="font-size: 11px;" id="connectionStatus">
-                    <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> អេក្រង់អតិថិជន (Connected)
-                </span>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Main Layout ពេញអេក្រង់ -->
-    <div class="row g-2 flex-grow-1 overflow-hidden">
-        <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ (Clean White Theme) -->
-        <div class="col-lg-8 d-flex flex-column h-100">
-            <div class="card card-white-theme p-3 flex-grow-1 d-flex flex-column shadow-sm overflow-hidden">
-                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                    <h6 class="m-0 fw-bold text-dark" style="font-size: 14px;">
-                        <i class="bi bi-receipt me-1 text-primary"></i> បញ្ជីមុខទំនិញ (Order Items)
-                    </h6>
-                    <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
-                </div>
+        <!-- Main Content Layout -->
+        <div class="row g-3">
+            <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ -->
+            <div class="col-lg-8">
+                <div class="card-box">
+                    <div class="card-box-header">
+                        <span><i class="bi bi-cart-check me-1"></i> វិក្កយបត្របច្ចុប្បន្ន (Current Cart & Promotion)</span>
+                        <span class="badge bg-success rounded-pill" id="itemsCountBadge">0 មុខ</span>
+                    </div>
 
-                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ - បង្ហាញໂฆษณา) -->
-                <div id="emptyStateView" class="flex-grow-1 d-flex flex-column">
-                    <div class="ad-banner-container w-100">
-                        <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                            <div>
-                                <h6 class="fw-bold text-dark mb-0" style="font-size: 14px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង <span class="text-primary" style="font-size: 12px;">| WELCOME</span></h6>
-                            </div>
-                            <div>
-                                <label for="promoMediaInput" class="btn btn-sm btn-outline-dark py-0 px-2 fw-bold" style="font-size: 10px; cursor: pointer;">
-                                    <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
-                                </label>
-                                <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
-                            </div>
+                    <!-- អេក្រង់ទំនេរ (បង្ហាញ Advertising / Video / Image) -->
+                    <div id="emptyStateView">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-dark">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង | WELCOME TO OUR SHOP</span>
+                            <label for="promoMediaInput" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold" style="cursor: pointer; font-size: 11px;">
+                                <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
+                            </label>
+                            <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
                         </div>
                         
-                        <div id="promoContainer" class="shadow-sm rounded-3 overflow-hidden bg-dark d-flex justify-content-center align-items-center flex-grow-1">
+                        <div id="promoContainer" class="ad-banner-container shadow-sm">
                             <div id="shopPromoCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="3500">
                                 <div class="carousel-inner h-100" id="promoCarouselInner">
                                     <div class="carousel-item active h-100">
-                                        <img src="https://via.placeholder.com/900x400/ffffff/333333?text=Special+Promotion+Banner+1" class="promo-media-element" alt="Promo 1">
+                                        <img src="https://via.placeholder.com/900x400/000000/ffffff?text=Special+Promotion+Banner+1" class="promo-media-element" alt="Promo 1">
                                     </div>
                                     <div class="carousel-item h-100">
-                                        <img src="https://via.placeholder.com/900x400/f1f5f9/333333?text=Delicious+Food+And+Drinks+2" class="promo-media-element" alt="Promo 2">
+                                        <img src="https://via.placeholder.com/900x400/000000/ffffff?text=Delicious+Food+And+Drinks+2" class="promo-media-element" alt="Promo 2">
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <p class="text-muted mt-1 mb-0" style="font-size: 11px;">សូមរីករាយជាមួយមុខម្ហូប និងភេសជ្ជៈដ៏ឈ្ងុយឆ្ងាញ់ៗ! | Enjoy our delicious foods and drinks!</p>
+                    <!-- បើមានទំនិញ បង្ហាញជាตาราง List -->
+                    <div id="itemsTableView" class="display-content-area" style="display: none;">
+                        <table class="table table-striped table-hover align-middle mb-0" style="font-size: 13px;">
+                            <thead class="table-light sticky-top text-secondary">
+                                <tr>
+                                    <th>មុខទំនិញ (Item)</th>
+                                    <th class="text-center">ចំនួន (Qty)</th>
+                                    <th class="text-end">តម្លៃ ($)</th>
+                                    <th class="text-end">សរុប ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="displayItemsTableBody">
+                                <!-- JS រត់ទិន្នន័យបញ្ចូលទីនេះ -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងរូបភាពទំនិញ -->
+            <div class="col-lg-4 d-flex flex-column gap-3">
+                <div class="payment-box">
+                    <h6 class="fw-bold text-success mb-2" style="font-size: 14px;"><i class="bi bi-wallet2 me-1"></i> សរុបការទូទាត់ (Payment Summary)</h6>
+                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 13px;">
+                        <span>សរុបជារួម (Subtotal):</span>
+                        <span class="fw-bold text-dark" id="subTotalDisplay">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 13px;">
+                        <span>បញ្ចុះតម្លៃ (Discount):</span>
+                        <span class="text-danger fw-bold" id="discountDisplay">-$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 border-bottom pb-1" style="font-size: 13px;">
+                        <span class="text-muted">ពន្ធ (VAT):</span>
+                        <span class="fw-bold text-dark" id="taxDisplay">$0.00</span>
+                    </div>
+
+                    <div class="grand-total-screen">
+                        <small class="text-white-50 d-block" style="font-size: 11px;">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="fw-bold m-0 text-warning" id="grandTotalDisplay">$0.00</h3>
+                            <span class="badge bg-secondary px-2 py-1 text-white" style="font-size: 11px;" id="totalQtyBadge">៛ 0</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- បើមានទំនិញ បង្ហាញជាตาราง List -->
-                <div id="itemsTableView" class="display-content-area" style="display: none;">
-                    <table class="table table-striped table-hover align-middle mb-0" style="font-size: 13px;">
-                        <thead class="table-light text-secondary sticky-top">
-                            <tr>
-                                <th>មុខទំនិញ (Item)</th>
-                                <th class="text-center">ចំនួន (Qty)</th>
-                                <th class="text-end">តម្លៃ ($)</th>
-                                <th class="text-end">សរុប ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="displayItemsTableBody">
-                            <!-- JS រត់ទិន្នន័យបញ្ចូលទីនេះ -->
-                        </tbody>
-                    </table>
+                <!-- ប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
+                <div class="card-box flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 220px;">
+                    <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                        <div class="text-muted mb-1" style="font-size: 2.5rem;">
+                            <i class="bi bi-basket3"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                        <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
-        <div class="col-lg-4 d-flex flex-column h-100 gap-2">
-            <div class="card card-custom p-3 flex-shrink-0">
-                <h6 class="text-white mb-2 fw-bold" style="font-size: 13px;">សរុបការទូទាត់ (Payment Summary)</h6>
-                <div class="d-flex justify-content-between mb-1" style="font-size: 13px;">
-                    <span class="text-white-50">សរុបជារួម (Subtotal):</span>
-                    <span class="fw-bold text-white" id="subTotalDisplay">$0.00</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1" style="font-size: 13px;">
-                    <span class="text-white-50">បញ្ចុះតម្លៃ (Discount):</span>
-                    <span class="text-danger fw-bold" id="discountDisplay">-$0.00</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2 border-bottom pb-1 border-secondary" style="font-size: 13px;">
-                    <span class="text-white-50">ពន្ធ (VAT):</span>
-                    <span class="fw-bold text-white" id="taxDisplay">$0.00</span>
-                </div>
-
-                <div class="p-2 rounded-3" style="background-color: #0b132b; border: 1px solid #3a506b;">
-                    <small class="text-success fw-bold d-block" style="font-size: 11px;">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="text-gold fw-bold m-0" id="grandTotalDisplay">$0.00</h3>
-                        <span class="badge bg-secondary px-2 py-1 text-white" style="font-size: 11px;" id="totalQtyBadge">៛ 0</span>
-                    </div>
-                </div>
+        <!-- ផ្នែកខាងក្រោម៖ ប្រវត្តិប្រតិបត្តិការលក់ (Sales Transactions History) ស្រដៀងរូបទី 2 -->
+        <div class="card-box mt-2">
+            <div class="card-box-header">
+                <span><i class="bi bi-clock-history me-1"></i> ប្រវត្តិការលក់ចេញសរុប (Sales Transactions History)</span>
             </div>
-
-            <!-- 🛒 ប្រអប់ខាងក្រោម Grand Total (Background ស) សម្រាប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ៗ -->
-            <div class="card card-white-custom p-3 flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center shadow-sm rounded-4 overflow-hidden">
-                <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-                    <div class="text-muted mb-1" style="font-size: 2.5rem;">
-                        <i class="bi bi-basket3"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
-                    <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
-                </div>
+            <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
+                <table class="table table-bordered table-striped mb-0 text-center align-middle" style="font-size: 12px;">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th>កាលបរិច្ឆេទ (Date)</th>
+                            <th>អ្នកលក់ (Staff/User)</th>
+                            <th>Category</th>
+                            <th>ទំនិញ (Item)</th>
+                            <th>ចំនួនណក់ (Qty)</th>
+                            <th>តម្លៃលក់ (Price)</th>
+                            <th>សរុប ($ Total)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesHistoryTableBody">
+                        <tr>
+                            <td colspan="7" class="text-muted py-2">មិនទាន់មានទិន្នន័យការលក់នៅឡើយទេ</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="text-center text-white-50 mt-1 flex-shrink-0" style="font-size: 10px;">
-        សហការផ្ដល់សេវាកម្មដោយប្រព័ន្ធគ្រប់គ្រងការលក់ POS របស់ហាងយើងខ្ញុំ
-    </footer>
-
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script សម្រាប់ Sync ទិន្នន័យ និងបង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
+    <!-- Script សម្រាប់ Sync ទិន្នន័យ -->
     <script>
         const channel = new BroadcastChannel('pos_customer_display_channel');
 
@@ -285,14 +306,14 @@
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
 
-                // 🖼️ បង្ហាញរូបភាពទំនិញទាំងអស់ក្នុងកន្រ្ដកដោយពង្រីកទំហំឱ្យធំច្បាស់ល្អ
+                // 🖼️ បង្ហាញរូបភាពទំនិញក្នុងកន្រ្ដក
                 let imagesHtml = '';
                 items.forEach(item => {
                     if (item.image && item.image.trim() !== "") {
                         imagesHtml += `
-                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 105px;">
-                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 95px; height: 90px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
-                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 95px;" title="${item.item_name}">${item.item_name}</div>
+                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 100px;">
+                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 90px; height: 85px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
+                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 90px;" title="${item.item_name}">${item.item_name}</div>
                                 <span class="badge bg-danger text-white px-1 py-0" style="font-size: 9px;">ចំនួន: ${item.quantity}</span>
                             </div>
                         `;
@@ -303,7 +324,7 @@
                     catalogArea.innerHTML = `
                         <div class="w-100 h-100 d-flex flex-column justify-content-center">
                             <h6 class="fw-bold text-dark mb-2" style="font-size: 13px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
-                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 220px;">
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 180px;">
                                 ${imagesHtml}
                             </div>
                         </div>
@@ -323,7 +344,7 @@
                 }
 
             } else {
-                emptyView.style.display = 'flex';
+                emptyView.style.display = 'block';
                 tableView.style.display = 'none';
                 countBadge.innerText = `0 មុខ`;
                 subTotalDisplay.innerText = `$0.00`;
