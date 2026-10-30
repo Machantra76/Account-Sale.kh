@@ -18,7 +18,7 @@
             background-color: #0b132b;
             color: #ffffff;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            overflow: hidden; /* បិទការ scroll ទាំងមូលអេក្រង់ ទុកឱ្យរត់តែក្នុងប្រអប់ */
+            overflow: hidden;
         }
         .navbar-brand {
             font-weight: 700;
@@ -48,7 +48,6 @@
             color: #fff;
             font-size: 12px;
         }
-        /* កំណត់កម្ពស់តារាងទំនិញឱ្យនៅល្មមស្អាត មិនបាំងបلوក */
         .display-content-area {
             max-height: 220px;
             overflow-y: auto;
@@ -66,10 +65,11 @@
             flex-direction: column;
             justify-content: space-between;
         }
+        /* 🛠️ កែសម្រួលត្រង់នេះឱ្យរូបភាព/វីដេអូលាតពេញប្រអប់ពណ៌ខ្មៅល្អ */
         .promo-media-element {
             width: 100% !important;
-            height: 240px !important;
-            object-fit: cover !important;
+            height: 100% !important;
+            object-fit: fill !important; 
             border-radius: 8px;
         }
         /* 🎨 ប្រអប់ខាងស្តាំពណ៌សស្អាត */
@@ -115,7 +115,7 @@
                     <span class="badge badge-count px-3 py-1 rounded-pill" id="itemsCountBadge">0 មុខ</span>
                 </div>
 
-                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ - បង្ហាញໂฆษณาទំហំល្មមស្អាត) -->
+                <!-- អេក្រង់ទំនេរ (គ្មានទំនិញ - បង្ហាញໂฆษณา) -->
                 <div id="emptyStateView" class="flex-grow-1 d-flex flex-column">
                     <div class="ad-banner-container w-100">
                         <div class="d-flex justify-content-between align-items-center mb-1 px-1">
@@ -285,7 +285,7 @@
                 grandTotalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
                 totalQtyBadge.innerText = `${totalQty} ឯកតា`;
 
-                // 🖼️ បង្ហាញរូបភាពទំនិញទាំងអស់ក្នុងកន្រ្ដកដោយពង្រីកទំហំឱ្យធំច្បាស់ល្អ មិនបាត់រូបចាស់
+                // 🖼️ បង្ហាញរូបភាពទំនិញទាំងអស់ក្នុងកន្រ្ដកដោយពង្រីកទំហំឱ្យធំច្បាស់ល្អ
                 let imagesHtml = '';
                 items.forEach(item => {
                     if (item.image && item.image.trim() !== "") {
