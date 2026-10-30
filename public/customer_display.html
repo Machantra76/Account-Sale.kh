@@ -11,57 +11,64 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        html, body {
+            height: 100vh;
+            margin: 0;
             background-color: #f8f9fa;
             color: #212529;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            margin: 0;
-            padding: 10px;
+            overflow: hidden; /* បិទការ scroll ធំ ដើម្បីឱ្យវានៅស្ងៀមចំកណ្តាលអេក្រង់ស្អាត */
         }
-        .container-fluid {
+        .main-wrapper {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* ទាញមាតិកាឱ្យនៅចំកណ្តាលកម្ពស់អេក្រង់ */
+            padding: 10px 20px;
+            box-sizing: border-box;
             max-width: 1600px;
+            margin: 0 auto;
         }
         /* 🎨 Top Navbar */
         .navbar-custom {
             background-color: #ffffff;
             border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 8px 15px;
+            border-radius: 12px;
+            padding: 10px 20px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            flex-shrink: 0;
+            margin-bottom: 12px;
         }
         .navbar-brand-title {
             font-weight: 700;
             color: #0d6efd;
-            font-size: 1.1rem;
         }
         /* 📦 Card Styling */
         .card-box {
             background-color: #ffffff;
             border: 1px solid #198754;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 10px;
         }
         .card-box-header {
             border-bottom: 1px solid #dee2e6;
             padding-bottom: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: bold;
             color: #198754;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
         }
-        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម (កំណត់កម្ពស់ល្មមស្អាត មិនធំពេក និងមិនសល់ចន្លោះវែង) */
+        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម (ទំហំល្មមស្អាត មិនធំពេក) */
         .ad-banner-container {
             position: relative;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             background: #000000;
             border: 2px dashed #198754;
-            height: 290px; 
+            height: 310px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -75,7 +82,7 @@
         .payment-box {
             background-color: #ffffff;
             border: 1px solid #198754;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             margin-bottom: 10px;
@@ -88,26 +95,26 @@
             text-align: right;
         }
         .display-content-area {
-            max-height: 250px;
+            max-height: 220px;
             overflow-y: auto;
         }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid">
-        <!-- Top Header -->
-        <nav class="navbar navbar-custom mb-2">
+    <div class="main-wrapper">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-custom">
             <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-shop fs-4 text-primary"></i>
+                    <i class="bi bi-shop fs-3 text-primary"></i>
                     <div>
-                        <h6 class="m-0 navbar-brand-title">ប្រព័ន្ធគ្រប់គ្រងការលក់ និង ស្តុក (Customer Display)</h6>
+                        <h5 class="m-0 navbar-brand-title">ប្រព័ន្ធគ្រប់គ្រងការលក់ និង ស្តុក (Customer Display)</h5>
                         <small class="text-muted" style="font-size: 11px;">POS & Inventory Management System</small>
                     </div>
                 </div>
                 <div>
-                    <span class="badge bg-success px-3 py-1 rounded-pill" style="font-size: 11px;" id="connectionStatus">
+                    <span class="badge bg-success px-3 py-2 rounded-pill" style="font-size: 11px;" id="connectionStatus">
                         <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> អេក្រង់អតិថិជន (Connected)
                     </span>
                 </div>
@@ -115,7 +122,7 @@
         </nav>
 
         <!-- Main Content Layout -->
-        <div class="row g-2">
+        <div class="row g-3">
             <!-- ផ្នែកខាងឆ្វេង៖ ផ្សព្វផ្សាយ ឬ បញ្ជីទំនិញ -->
             <div class="col-lg-8">
                 <div class="card-box">
@@ -126,9 +133,9 @@
 
                     <!-- អេក្រង់ទំនេរ (បង្ហាញ Advertising / Video / Image) -->
                     <div id="emptyStateView">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold text-dark" style="font-size: 12px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង | WELCOME TO OUR SHOP</span>
-                            <label for="promoMediaInput" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold" style="cursor: pointer; font-size: 10px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-dark" style="font-size: 13px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង | WELCOME TO OUR SHOP</span>
+                            <label for="promoMediaInput" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold" style="cursor: pointer; font-size: 11px;">
                                 <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
                             </label>
                             <input type="file" id="promoMediaInput" accept="image/*,video/*" class="d-none" onchange="handlePromoMediaUpload(event)">
@@ -194,7 +201,7 @@
                 </div>
 
                 <!-- ប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
-                <div class="card-box flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 200px;">
+                <div class="card-box d-flex flex-column justify-content-center align-items-center text-center" style="height: 195px;">
                     <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
                         <div class="text-muted mb-1" style="font-size: 2rem;">
                             <i class="bi bi-basket3"></i>
@@ -287,10 +294,10 @@
                 items.forEach(item => {
                     if (item.image && item.image.trim() !== "") {
                         imagesHtml += `
-                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 90px;">
-                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 80px; height: 75px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
-                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 80px;" title="${item.item_name}">${item.item_name}</div>
-                                <span class="badge bg-danger text-white px-1 py-0" style="font-size: 9px;">ចំនួន: ${item.quantity}</span>
+                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 85px;">
+                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 75px; height: 70px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
+                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 75px;" title="${item.item_name}">${item.item_name}</div>
+                                <span class="badge bg-danger text-white px-1 py-0" style="font-size: 8px;">ចំនួន: ${item.quantity}</span>
                             </div>
                         `;
                     }
@@ -300,7 +307,7 @@
                     catalogArea.innerHTML = `
                         <div class="w-100 h-100 d-flex flex-column justify-content-center">
                             <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
-                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 180px;">
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 150px;">
                                 ${imagesHtml}
                             </div>
                         </div>
@@ -309,7 +316,7 @@
                     let latestItem = items[items.length - 1];
                     catalogArea.innerHTML = `
                         <div class="w-100 text-center p-1">
-                            <div class="text-warning mb-1" style="font-size: 2rem;">
+                            <div class="text-warning mb-1" style="font-size: 1.8rem;">
                                 <i class="bi bi-box-seam-fill"></i>
                             </div>
                             <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">${latestItem.item_name}</h6>
@@ -328,7 +335,7 @@
                 totalQtyBadge.innerText = `៛ 0`;
 
                 catalogArea.innerHTML = `
-                    <div class="text-muted mb-1" style="font-size: 2rem;">
+                    <div class="text-muted mb-1" style="font-size: 1.8rem;">
                         <i class="bi bi-basket3"></i>
                     </div>
                     <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
