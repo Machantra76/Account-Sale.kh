@@ -21,7 +21,7 @@
         .container-fluid {
             max-width: 1600px;
         }
-        /* 🎨 Top Navbar ស្រដៀងរូបទី 2 */
+        /* 🎨 Top Navbar */
         .navbar-custom {
             background-color: #ffffff;
             border: 1px solid #dee2e6;
@@ -33,10 +33,10 @@
             font-weight: 700;
             color: #0d6efd;
         }
-        /* 📦 Card Styling ស្រដៀងប្រអប់ Dashboard ក្នុងរូបទី 2 */
+        /* 📦 Card Styling */
         .card-box {
             background-color: #ffffff;
-            border: 1px solid #198754; /* គែមពណ៌បៃតងស្អាត */
+            border: 1px solid #198754;
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -67,7 +67,7 @@
         .promo-media-element {
             width: 100% !important;
             height: 100% !important;
-            object-fit: fill !important; /* លាតពេញប្រអប់ខ្មៅល្អ */
+            object-fit: fill !important;
         }
         /* 🛒 ប្រអប់ខាងស្តាំ */
         .payment-box {
@@ -76,6 +76,7 @@
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 15px;
         }
         .grand-total-screen {
             background-color: #212529;
@@ -85,7 +86,7 @@
             text-align: right;
         }
         .display-content-area {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
         }
     </style>
@@ -93,7 +94,7 @@
 <body>
 
     <div class="container-fluid">
-        <!-- Top Header ស្រដៀងរូបទី 2 -->
+        <!-- Top Header -->
         <nav class="navbar navbar-custom mb-3">
             <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
@@ -165,7 +166,7 @@
             </div>
 
             <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងរូបភាពទំនិញ -->
-            <div class="col-lg-4 d-flex flex-column gap-3">
+            <div class="col-lg-4 d-flex flex-column">
                 <div class="payment-box">
                     <h6 class="fw-bold text-success mb-2" style="font-size: 14px;"><i class="bi bi-wallet2 me-1"></i> សរុបការទូទាត់ (Payment Summary)</h6>
                     <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 13px;">
@@ -200,33 +201,6 @@
                         <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ផ្នែកខាងក្រោម៖ ប្រវត្តិប្រតិបត្តិការលក់ (Sales Transactions History) ស្រដៀងរូបទី 2 -->
-        <div class="card-box mt-2">
-            <div class="card-box-header">
-                <span><i class="bi bi-clock-history me-1"></i> ប្រវត្តិការលក់ចេញសរុប (Sales Transactions History)</span>
-            </div>
-            <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
-                <table class="table table-bordered table-striped mb-0 text-center align-middle" style="font-size: 12px;">
-                    <thead class="table-light text-secondary">
-                        <tr>
-                            <th>កាលបរិច្ឆេទ (Date)</th>
-                            <th>អ្នកលក់ (Staff/User)</th>
-                            <th>Category</th>
-                            <th>ទំនិញ (Item)</th>
-                            <th>ចំនួនណក់ (Qty)</th>
-                            <th>តម្លៃលក់ (Price)</th>
-                            <th>សរុប ($ Total)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="salesHistoryTableBody">
-                        <tr>
-                            <td colspan="7" class="text-muted py-2">មិនទាន់មានទិន្នន័យការលក់នៅឡើយទេ</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -324,7 +298,7 @@
                     catalogArea.innerHTML = `
                         <div class="w-100 h-100 d-flex flex-column justify-content-center">
                             <h6 class="fw-bold text-dark mb-2" style="font-size: 13px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
-                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 180px;">
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 200px;">
                                 ${imagesHtml}
                             </div>
                         </div>
