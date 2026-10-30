@@ -11,33 +11,24 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100vh;
-            margin: 0;
+        body {
             background-color: #f8f9fa;
             color: #212529;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            overflow: hidden; /* បិទការ scroll ធំ ដើម្បីកុំឱ្យធ្លាក់បន្ទាត់ */
+            margin: 0;
+            padding: 15px;
         }
-        .main-wrapper {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* ឱ្យវានៅចំកណ្ដាលអេក្រង់ស្អាត */
-            padding: 25px 30px; /* 👈 បន្ថែមគម្លាត Padding លើ ក្រោម ឆ្វេង ស្តាំ ឱ្យសល់គែមអេក្រង់ស្អាតមិនជាប់ពេក */
-            box-sizing: border-box;
+        .container-fluid {
             max-width: 1600px;
-            margin: 0 auto;
         }
         /* 🎨 Top Navbar */
         .navbar-custom {
             background-color: #ffffff;
             border: 1px solid #dee2e6;
             border-radius: 12px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            flex-shrink: 0;
-            margin-bottom: 15px; /* គម្លាតពី Navbar មកប្រអប់ខាងក្រោម */
+            margin-bottom: 15px;
         }
         .navbar-brand-title {
             font-weight: 700;
@@ -48,27 +39,28 @@
             background-color: #ffffff;
             border: 1px solid #198754;
             border-radius: 12px;
-            padding: 12px;
+            padding: 15px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 15px;
         }
         .card-box-header {
             border-bottom: 1px solid #dee2e6;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
             font-weight: bold;
             color: #198754;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម */
+        /* 🖼️ ពង្រីកប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្មឱ្យវែងចុះក្រោមថែមជាងមុន (កើនពី 480px មក 550px) */
         .ad-banner-container {
             position: relative;
             border-radius: 10px;
             overflow: hidden;
             background: #000000;
             border: 2px dashed #198754;
-            height: 300px; 
+            height: 550px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -83,26 +75,26 @@
             background-color: #ffffff;
             border: 1px solid #198754;
             border-radius: 12px;
-            padding: 12px;
+            padding: 15px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         .grand-total-screen {
             background-color: #212529;
             color: #ffc107;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             text-align: right;
         }
         .display-content-area {
-            max-height: 220px;
+            max-height: 450px; /* ពង្រីកប្រអប់តារាងបញ្ជីទំនិញឱ្យវែងចុះក្រោមតាមហ្នឹងដែរ */
             overflow-y: auto;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-wrapper">
+    <div class="container-fluid">
         <!-- Top Navbar -->
         <nav class="navbar navbar-custom">
             <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
@@ -110,12 +102,12 @@
                     <i class="bi bi-shop fs-3 text-primary"></i>
                     <div>
                         <h5 class="m-0 navbar-brand-title">ប្រព័ន្ធគ្រប់គ្រងការលក់ និង ស្តុក (Customer Display)</h5>
-                        <small class="text-muted" style="font-size: 11px;">POS & Inventory Management System</small>
+                        <small class="text-muted">POS & Inventory Management System</small>
                     </div>
                 </div>
                 <div>
-                    <span class="badge bg-success px-3 py-2 rounded-pill" style="font-size: 11px;" id="connectionStatus">
-                        <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> អេក្រង់អតិថិជន (Connected)
+                    <span class="badge bg-success px-3 py-2 rounded-pill" id="connectionStatus">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> អេក្រង់អតិថិជន (Connected)
                     </span>
                 </div>
             </div>
@@ -134,7 +126,7 @@
                     <!-- អេក្រង់ទំនេរ (បង្ហាញ Advertising / Video / Image) -->
                     <div id="emptyStateView">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-dark" style="font-size: 13px;">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង | WELCOME TO OUR SHOP</span>
+                            <span class="fw-bold text-dark">សូមស្វាគមន៍មកកាន់ហាងរបស់យើង | WELCOME TO OUR SHOP</span>
                             <label for="promoMediaInput" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold" style="cursor: pointer; font-size: 11px;">
                                 <i class="bi bi-plus-circle me-1"></i> Add File រូបភាព/វីដេអូ
                             </label>
@@ -177,37 +169,37 @@
             <!-- ផ្នែកខាងស្តាំ៖ ទឹកប្រាក់ និងរូបភាពទំនិញ -->
             <div class="col-lg-4 d-flex flex-column">
                 <div class="payment-box">
-                    <h6 class="fw-bold text-success mb-2" style="font-size: 13px;"><i class="bi bi-wallet2 me-1"></i> សរុបការទូទាត់ (Payment Summary)</h6>
-                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 12px;">
+                    <h6 class="fw-bold text-success mb-2" style="font-size: 14px;"><i class="bi bi-wallet2 me-1"></i> សរុបការទូទាត់ (Payment Summary)</h6>
+                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 13px;">
                         <span>សរុបជារួម (Subtotal):</span>
                         <span class="fw-bold text-dark" id="subTotalDisplay">$0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 12px;">
+                    <div class="d-flex justify-content-between mb-1 text-muted" style="font-size: 13px;">
                         <span>បញ្ចុះតម្លៃ (Discount):</span>
                         <span class="text-danger fw-bold" id="discountDisplay">-$0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2 border-bottom pb-1" style="font-size: 12px;">
+                    <div class="d-flex justify-content-between mb-2 border-bottom pb-1" style="font-size: 13px;">
                         <span class="text-muted">ពន្ធ (VAT):</span>
                         <span class="fw-bold text-dark" id="taxDisplay">$0.00</span>
                     </div>
 
                     <div class="grand-total-screen">
-                        <small class="text-white-50 d-block" style="font-size: 10px;">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
+                        <small class="text-white-50 d-block" style="font-size: 11px;">ទឹកប្រាក់ត្រូវបង់សរុប (Grand Total)</small>
                         <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="fw-bold m-0 text-warning" id="grandTotalDisplay">$0.00</h4>
-                            <span class="badge bg-secondary px-2 py-1 text-white" style="font-size: 10px;" id="totalQtyBadge">៛ 0</span>
+                            <h3 class="fw-bold m-0 text-warning" id="grandTotalDisplay">$0.00</h3>
+                            <span class="badge bg-secondary px-2 py-1 text-white" style="font-size: 11px;" id="totalQtyBadge">៛ 0</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- ប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
-                <div class="card-box d-flex flex-column justify-content-center align-items-center text-center" style="height: 185px;">
+                <!-- ប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ (ពង្រីកកម្ពស់ប្រអប់ខាងក្រោមនេះឱ្យវែងចុះក្រោមស្មើគ្នា) -->
+                <div class="card-box flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 425px;">
                     <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-                        <div class="text-muted mb-1" style="font-size: 2rem;">
+                        <div class="text-muted mb-1" style="font-size: 2.5rem;">
                             <i class="bi bi-basket3"></i>
                         </div>
-                        <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
-                        <p class="text-muted small m-0" style="font-size: 10px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                        <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                     </div>
                 </div>
             </div>
@@ -294,10 +286,10 @@
                 items.forEach(item => {
                     if (item.image && item.image.trim() !== "") {
                         imagesHtml += `
-                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 85px;">
-                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 75px; height: 70px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
-                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 75px;" title="${item.item_name}">${item.item_name}</div>
-                                <span class="badge bg-danger text-white px-1 py-0" style="font-size: 8px;">ចំនួន: ${item.quantity}</span>
+                            <div class="text-center p-1 bg-light rounded-3 border shadow-sm" style="width: 100px;">
+                                <img src="${item.image}" class="rounded-2 mb-1" style="width: 90px; height: 85px; object-fit: contain; background: #ffffff;" alt="${item.item_name}">
+                                <div class="text-dark fw-bold text-truncate" style="font-size: 10px; max-width: 90px;" title="${item.item_name}">${item.item_name}</div>
+                                <span class="badge bg-danger text-white px-1 py-0" style="font-size: 9px;">ចំនួន: ${item.quantity}</span>
                             </div>
                         `;
                     }
@@ -306,8 +298,8 @@
                 if (imagesHtml !== "") {
                     catalogArea.innerHTML = `
                         <div class="w-100 h-100 d-flex flex-column justify-content-center">
-                            <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
-                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 140px;">
+                            <h6 class="fw-bold text-dark mb-2" style="font-size: 13px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 380px;">
                                 ${imagesHtml}
                             </div>
                         </div>
@@ -315,13 +307,13 @@
                 } else {
                     let latestItem = items[items.length - 1];
                     catalogArea.innerHTML = `
-                        <div class="w-100 text-center p-1">
-                            <div class="text-warning mb-1" style="font-size: 1.8rem;">
+                        <div class="w-100 text-center p-2">
+                            <div class="text-warning mb-1" style="font-size: 2.5rem;">
                                 <i class="bi bi-box-seam-fill"></i>
                             </div>
-                            <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">${latestItem.item_name}</h6>
-                            <div class="text-danger fs-6 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</div>
-                            <small class="text-muted" style="font-size: 10px;">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
+                            <h6 class="fw-bold text-dark mb-1">${latestItem.item_name}</h6>
+                            <div class="text-danger fs-5 fw-bold">$${parseFloat(latestItem.unit_price).toFixed(2)}</div>
+                            <small class="text-muted" style="font-size: 11px;">ចំនួន: ${latestItem.quantity} ${latestItem.unit || 'ដុំ'}</small>
                         </div>
                     `;
                 }
@@ -335,11 +327,11 @@
                 totalQtyBadge.innerText = `៛ 0`;
 
                 catalogArea.innerHTML = `
-                    <div class="text-muted mb-1" style="font-size: 1.8rem;">
+                    <div class="text-muted mb-1" style="font-size: 2.5rem;">
                         <i class="bi bi-basket3"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
-                    <p class="text-muted small m-0" style="font-size: 10px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
+                    <h6 class="fw-bold text-dark mb-1" style="font-size: 13px;">ទំនិញត្រូវបានជ្រើសរើស</h6>
+                    <p class="text-muted small m-0" style="font-size: 11px;">រូបភាពទំនិញពី Catalog នឹងបង្ហាញទីនេះ</p>
                 `;
             }
         }
