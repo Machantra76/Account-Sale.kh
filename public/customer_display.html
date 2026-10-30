@@ -17,14 +17,14 @@
             background-color: #f8f9fa;
             color: #212529;
             font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
-            overflow: hidden; /* បិទការ scroll ធំ ដើម្បីឱ្យវានៅស្ងៀមចំកណ្តាលអេក្រង់ស្អាត */
+            overflow: hidden; /* បិទការ scroll ធំ ដើម្បីកុំឱ្យធ្លាក់បន្ទាត់ */
         }
         .main-wrapper {
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* ទាញមាតិកាឱ្យនៅចំកណ្តាលកម្ពស់អេក្រង់ */
-            padding: 10px 20px;
+            justify-content: center; /* ឱ្យវានៅចំកណ្ដាលអេក្រង់ស្អាត */
+            padding: 25px 30px; /* 👈 បន្ថែមគម្លាត Padding លើ ក្រោម ឆ្វេង ស្តាំ ឱ្យសល់គែមអេក្រង់ស្អាតមិនជាប់ពេក */
             box-sizing: border-box;
             max-width: 1600px;
             margin: 0 auto;
@@ -37,7 +37,7 @@
             padding: 10px 20px;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             flex-shrink: 0;
-            margin-bottom: 12px;
+            margin-bottom: 15px; /* គម្លាតពី Navbar មកប្រអប់ខាងក្រោម */
         }
         .navbar-brand-title {
             font-weight: 700;
@@ -61,14 +61,14 @@
             justify-content: space-between;
             align-items: center;
         }
-        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម (ទំហំល្មមស្អាត មិនធំពេក) */
+        /* 🖼️ ប្រអប់បង្ហាញរូបភាព ឬ វីដេអូផ្សាយពាណិជ្ជកម្ម */
         .ad-banner-container {
             position: relative;
             border-radius: 10px;
             overflow: hidden;
             background: #000000;
             border: 2px dashed #198754;
-            height: 310px; 
+            height: 300px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -201,7 +201,7 @@
                 </div>
 
                 <!-- ប្រអប់បង្ហាញរូបភាពទំនិញធំៗច្បាស់ល្អ -->
-                <div class="card-box d-flex flex-column justify-content-center align-items-center text-center" style="height: 195px;">
+                <div class="card-box d-flex flex-column justify-content-center align-items-center text-center" style="height: 185px;">
                     <div id="catalogDisplayArea" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
                         <div class="text-muted mb-1" style="font-size: 2rem;">
                             <i class="bi bi-basket3"></i>
@@ -307,7 +307,7 @@
                     catalogArea.innerHTML = `
                         <div class="w-100 h-100 d-flex flex-column justify-content-center">
                             <h6 class="fw-bold text-dark mb-1" style="font-size: 12px;">🛒 រូបភាពទំនិញក្នុងកន្រ្ដក</h6>
-                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 150px;">
+                            <div class="d-flex flex-wrap justify-content-center align-content-center gap-2 overflow-auto" style="max-height: 140px;">
                                 ${imagesHtml}
                             </div>
                         </div>
